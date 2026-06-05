@@ -1,0 +1,4 @@
+[console_scripts]
+w102_gazebo_nav = w102_path_planning.w102_gazebo_nav:main
+w102_path_sim = w102_path_planning.w102_path_sim:main
+w102_viz_markers = w102_path_planning.w102_viz_markers:main

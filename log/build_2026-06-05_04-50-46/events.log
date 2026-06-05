@@ -1,0 +1,56 @@
+[0.000000] (-) TimerEvent: {}
+[0.000051] (w102_path_planning) JobQueued: {'identifier': 'w102_path_planning', 'dependencies': OrderedDict()}
+[0.000835] (w102_path_planning) JobStarted: {'identifier': 'w102_path_planning'}
+[0.099815] (-) TimerEvent: {}
+[0.199986] (-) TimerEvent: {}
+[0.300160] (-) TimerEvent: {}
+[0.400331] (-) TimerEvent: {}
+[0.500569] (-) TimerEvent: {}
+[0.600755] (-) TimerEvent: {}
+[0.700988] (-) TimerEvent: {}
+[0.801171] (-) TimerEvent: {}
+[0.868121] (w102_path_planning) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../../build/w102_path_planning', 'build', '--build-base', '/home/myy/CTI_One_interview/build/w102_path_planning/build', 'install', '--record', '/home/myy/CTI_One_interview/build/w102_path_planning/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/home/myy/CTI_One_interview/src/w102_path_planning', 'env': {'USER': 'root', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/kilted/opt/gz_math_vendor/lib:/opt/ros/kilted/opt/gz_utils_vendor/lib:/opt/ros/kilted/opt/rviz_ogre_vendor/lib:/opt/ros/kilted/lib/x86_64-linux-gnu:/opt/ros/kilted/opt/gz_cmake_vendor/lib:/opt/ros/kilted/lib', 'HOME': '/root', 'OLDPWD': '/', 'ROS_PYTHON_VERSION': '3', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/0/bus', 'WSL_DISTRO_NAME': 'Ubuntu-24.04', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'kilted', 'LOGNAME': 'root', 'NAME': 'myy', 'WSL_INTEROP': '/run/WSL/814_interop', 'PULSE_SERVER': 'unix:/mnt/wslg/PulseServer', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'TERM': 'xterm-256color', 'PATH': '/opt/ros/kilted/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/马扬洋/bin:/mnt/c/Program Files/Git/mingw64/bin:/mnt/c/Program Files/Git/usr/local/bin:/mnt/c/Program Files/Git/usr/bin:/mnt/c/Program Files/Git/usr/bin:/mnt/c/Program Files/Git/mingw64/bin:/mnt/c/Program Files/Git/usr/bin:/mnt/c/Users/马扬洋/bin:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0:/mnt/c/windows/System32/OpenSSH:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Users/Administrator/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files/HP/OMEN-Broadcast/Common:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0:/mnt/c/WINDOWS/System32/OpenSSH:/mnt/c/Program Files (x86)/Windows Kits/8.1/Windows Performance Toolkit:/mnt/c/Program Files/dotnet:/mnt/c/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/马扬洋/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/马扬洋/.dotnet/tools:/mnt/c/Program Files/Git/mingw64/bin:/mnt/c/Program Files/Git/usr/bin/vendor_perl:/mnt/c/Program Files/Git/usr/bin/core_perl:/mnt/c/Users/马扬洋/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/7f9f7181-77a8-4901-bf35-1c452d3685bf/801893fc-a9c5-48bd-b75a-8940b3f43b9d/bin', 'XDG_RUNTIME_DIR': '/run/user/0/', 'DISPLAY': ':0', 'LANG': 'C.UTF-8', 'AMENT_PREFIX_PATH': '/opt/ros/kilted', 'SHELL': '/bin/bash', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'PWD': '/home/myy/CTI_One_interview/build/w102_path_planning', 'PYTHONPATH': '/home/myy/CTI_One_interview/build/w102_path_planning/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages:/opt/ros/kilted/lib/python3.12/site-packages', 'COLCON': '1', 'WSL2_GUI_APPS_ENABLED': '1', 'HOSTTYPE': 'x86_64', 'CMAKE_PREFIX_PATH': '/opt/ros/kilted/opt/gz_math_vendor:/opt/ros/kilted/opt/gz_utils_vendor:/opt/ros/kilted/opt/gz_cmake_vendor', 'WSLENV': ''}, 'shell': False}
+[0.901355] (-) TimerEvent: {}
+[1.001653] (-) TimerEvent: {}
+[1.052241] (w102_path_planning) StdoutLine: {'line': b'running egg_info\n'}
+[1.052538] (w102_path_planning) StdoutLine: {'line': b'creating ../../build/w102_path_planning/w102_path_planning.egg-info\n'}
+[1.065590] (w102_path_planning) StdoutLine: {'line': b'writing ../../build/w102_path_planning/w102_path_planning.egg-info/PKG-INFO\n'}
+[1.065930] (w102_path_planning) StdoutLine: {'line': b'writing dependency_links to ../../build/w102_path_planning/w102_path_planning.egg-info/dependency_links.txt\n'}
+[1.066030] (w102_path_planning) StdoutLine: {'line': b'writing entry points to ../../build/w102_path_planning/w102_path_planning.egg-info/entry_points.txt\n'}
+[1.066120] (w102_path_planning) StdoutLine: {'line': b'writing requirements to ../../build/w102_path_planning/w102_path_planning.egg-info/requires.txt\n'}
+[1.066318] (w102_path_planning) StdoutLine: {'line': b'writing top-level names to ../../build/w102_path_planning/w102_path_planning.egg-info/top_level.txt\n'}
+[1.066365] (w102_path_planning) StdoutLine: {'line': b"writing manifest file '../../build/w102_path_planning/w102_path_planning.egg-info/SOURCES.txt'\n"}
+[1.092314] (w102_path_planning) StdoutLine: {'line': b"reading manifest file '../../build/w102_path_planning/w102_path_planning.egg-info/SOURCES.txt'\n"}
+[1.092678] (w102_path_planning) StdoutLine: {'line': b"writing manifest file '../../build/w102_path_planning/w102_path_planning.egg-info/SOURCES.txt'\n"}
+[1.092947] (w102_path_planning) StdoutLine: {'line': b'running build\n'}
+[1.093270] (w102_path_planning) StdoutLine: {'line': b'running build_py\n'}
+[1.093412] (w102_path_planning) StdoutLine: {'line': b'creating /home/myy/CTI_One_interview/build/w102_path_planning/build\n'}
+[1.093594] (w102_path_planning) StdoutLine: {'line': b'creating /home/myy/CTI_One_interview/build/w102_path_planning/build/lib\n'}
+[1.094083] (w102_path_planning) StdoutLine: {'line': b'creating /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning\n'}
+[1.094227] (w102_path_planning) StdoutLine: {'line': b'copying w102_path_planning/__init__.py -> /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning\n'}
+[1.094434] (w102_path_planning) StdoutLine: {'line': b'copying w102_path_planning/w102_path_sim.py -> /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning\n'}
+[1.094674] (w102_path_planning) StdoutLine: {'line': b'running install\n'}
+[1.098871] (w102_path_planning) StdoutLine: {'line': b'running install_lib\n'}
+[1.101763] (-) TimerEvent: {}
+[1.111950] (w102_path_planning) StdoutLine: {'line': b'creating /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning\n'}
+[1.112237] (w102_path_planning) StdoutLine: {'line': b'copying /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning/__init__.py -> /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning\n'}
+[1.112327] (w102_path_planning) StdoutLine: {'line': b'copying /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning/w102_path_sim.py -> /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning\n'}
+[1.112569] (w102_path_planning) StdoutLine: {'line': b'byte-compiling /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning/__init__.py to __init__.cpython-312.pyc\n'}
+[1.112895] (w102_path_planning) StdoutLine: {'line': b'byte-compiling /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning/w102_path_sim.py to w102_path_sim.cpython-312.pyc\n'}
+[1.116478] (w102_path_planning) StdoutLine: {'line': b'running install_data\n'}
+[1.116590] (w102_path_planning) StdoutLine: {'line': b'creating /home/myy/CTI_One_interview/install/w102_path_planning/share/ament_index\n'}
+[1.116876] (w102_path_planning) StdoutLine: {'line': b'creating /home/myy/CTI_One_interview/install/w102_path_planning/share/ament_index/resource_index\n'}
+[1.117021] (w102_path_planning) StdoutLine: {'line': b'creating /home/myy/CTI_One_interview/install/w102_path_planning/share/ament_index/resource_index/packages\n'}
+[1.117199] (w102_path_planning) StdoutLine: {'line': b'copying resource/w102_path_planning -> /home/myy/CTI_One_interview/install/w102_path_planning/share/ament_index/resource_index/packages\n'}
+[1.117313] (w102_path_planning) StdoutLine: {'line': b'copying package.xml -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning\n'}
+[1.117422] (w102_path_planning) StdoutLine: {'line': b'creating /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/launch\n'}
+[1.117658] (w102_path_planning) StdoutLine: {'line': b'copying launch/w102_path_planning.launch.py -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/launch\n'}
+[1.117743] (w102_path_planning) StdoutLine: {'line': b'running install_egg_info\n'}
+[1.132389] (w102_path_planning) StdoutLine: {'line': b'Copying ../../build/w102_path_planning/w102_path_planning.egg-info to /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning-1.0.0-py3.12.egg-info\n'}
+[1.132957] (w102_path_planning) StdoutLine: {'line': b'running install_scripts\n'}
+[1.201977] (-) TimerEvent: {}
+[1.225914] (w102_path_planning) StdoutLine: {'line': b'Installing w102_path_sim script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning\n'}
+[1.226428] (w102_path_planning) StdoutLine: {'line': b"writing list of installed files to '/home/myy/CTI_One_interview/build/w102_path_planning/install.log'\n"}
+[1.255102] (w102_path_planning) CommandEnded: {'returncode': 0}
+[1.272243] (w102_path_planning) JobEnded: {'identifier': 'w102_path_planning', 'rc': 0}
+[1.272732] (-) EventReactorShutdown: {}

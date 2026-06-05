@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: w102-path-planning
+Version: 1.0.0
+Summary: W102 graph-based path planning simulation in a living room.
+Maintainer: CTI One
+Maintainer-email: w102@cti.com
+License: Apache-2.0
