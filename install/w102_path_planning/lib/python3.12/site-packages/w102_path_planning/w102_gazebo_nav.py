@@ -46,7 +46,7 @@ class W102GazeboNav(Node):
     # Controller gains
     KP_ANG  = 2.0    # rad/s per rad of heading error
     KP_LIN  = 0.6    # m/s per metre of remaining distance
-    MAX_LIN = 0.35   # m/s   top forward speed
+    MAX_LIN = 0.12   # m/s   top forward speed
     MAX_ANG = 1.2    # rad/s top turn speed
 
     # Tolerances

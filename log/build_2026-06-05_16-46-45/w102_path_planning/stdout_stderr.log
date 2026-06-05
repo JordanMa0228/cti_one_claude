@@ -1,0 +1,25 @@
+running develop
+running egg_info
+writing w102_path_planning.egg-info/PKG-INFO
+writing dependency_links to w102_path_planning.egg-info/dependency_links.txt
+writing entry points to w102_path_planning.egg-info/entry_points.txt
+writing requirements to w102_path_planning.egg-info/requires.txt
+writing top-level names to w102_path_planning.egg-info/top_level.txt
+reading manifest file 'w102_path_planning.egg-info/SOURCES.txt'
+writing manifest file 'w102_path_planning.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102-path-planning.egg-link (link to .)
+Installing w102_gazebo_nav script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning
+Installing w102_path_sim script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning
+Installing w102_viz_markers script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning
+
+Installed /home/myy/CTI_One_interview/build/w102_path_planning
+running symlink_data
+symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/resource/w102_path_planning -> /home/myy/CTI_One_interview/install/w102_path_planning/share/ament_index/resource_index/packages
+symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/package.xml -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning
+symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/launch/w102_gazebo.launch.py -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/launch
+symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/launch/w102_path_planning.launch.py -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/launch
+symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/worlds/living_room.sdf -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/worlds
+symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/config/ros_gz_bridge.yaml -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/config
+symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/urdf/w102_robot.urdf.xacro -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/urdf
+symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/rviz/w102_sim.rviz -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/rviz

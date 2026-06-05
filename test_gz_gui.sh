@@ -14,5 +14,6 @@ export MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA
 WORLD=$(ros2 pkg prefix w102_path_planning)/share/w102_path_planning/worlds/living_room.sdf
 
 echo "Opening Gazebo with world: $WORLD"
-echo "A window should appear on your Windows desktop..."
-gz sim -r "$WORLD"
+echo "A Gazebo window will appear — the simulation starts PAUSED."
+echo "Press the ▶ Play button (bottom-left toolbar) to start."
+gz sim "$WORLD"

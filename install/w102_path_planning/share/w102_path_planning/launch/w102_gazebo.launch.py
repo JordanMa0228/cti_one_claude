@@ -42,7 +42,7 @@ GUI_ENV = {
     'DISPLAY':          _DISPLAY,
     'WAYLAND_DISPLAY':  _WAYLAND,
     'XDG_RUNTIME_DIR':  _XDG_RUNTIME,
-    'QT_QPA_PLATFORM':  'wayland',
+    'QT_QPA_PLATFORM':  'xcb',
 }
 
 
@@ -59,7 +59,10 @@ def generate_launch_description():
 
     rviz_on = LaunchConfiguration('rviz')
 
-    # ── 1. Gazebo Sim — GUI with OGRE1 engine (xcb/GLX via XWayland + D3D12) ─
+    # ── 1. Gazebo Sim — starts PAUSED so user can orient camera then press Play ─
+    # Remove -r so simulation is paused on open.  Press the ▶ Play button in
+    # the Gazebo window to start the physics.  The nav node waits for /odom
+    # (only published once running) so the robot will not move until Play.
     gz_server = ExecuteProcess(
         cmd=['gz', 'sim', '-r', world_file],
         output='screen',

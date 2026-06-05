@@ -1,0 +1,27 @@
+[0.486s] Invoking command in '/home/myy/CTI_One_interview/src/w102_path_planning': PYTHONPATH=/home/myy/CTI_One_interview/build/w102_path_planning/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/w102_path_planning build --build-base /home/myy/CTI_One_interview/build/w102_path_planning/build install --record /home/myy/CTI_One_interview/build/w102_path_planning/install.log --single-version-externally-managed install_data
+[0.640s] running egg_info
+[0.651s] writing ../../build/w102_path_planning/w102_path_planning.egg-info/PKG-INFO
+[0.651s] writing dependency_links to ../../build/w102_path_planning/w102_path_planning.egg-info/dependency_links.txt
+[0.651s] writing entry points to ../../build/w102_path_planning/w102_path_planning.egg-info/entry_points.txt
+[0.652s] writing requirements to ../../build/w102_path_planning/w102_path_planning.egg-info/requires.txt
+[0.652s] writing top-level names to ../../build/w102_path_planning/w102_path_planning.egg-info/top_level.txt
+[0.674s] reading manifest file '../../build/w102_path_planning/w102_path_planning.egg-info/SOURCES.txt'
+[0.674s] writing manifest file '../../build/w102_path_planning/w102_path_planning.egg-info/SOURCES.txt'
+[0.675s] running build
+[0.675s] running build_py
+[0.675s] copying w102_path_planning/w102_gazebo_nav.py -> /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning
+[0.675s] running install
+[0.679s] running install_lib
+[0.689s] copying /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning/w102_gazebo_nav.py -> /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning
+[0.690s] byte-compiling /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning/w102_gazebo_nav.py to w102_gazebo_nav.cpython-312.pyc
+[0.691s] running install_data
+[0.691s] copying config/ros_gz_bridge.yaml -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/config
+[0.691s] running install_egg_info
+[0.702s] removing '/home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning-1.0.0-py3.12.egg-info' (and everything under it)
+[0.702s] Copying ../../build/w102_path_planning/w102_path_planning.egg-info to /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning-1.0.0-py3.12.egg-info
+[0.703s] running install_scripts
+[0.776s] Installing w102_gazebo_nav script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning
+[0.776s] Installing w102_path_sim script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning
+[0.776s] Installing w102_viz_markers script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning
+[0.777s] writing list of installed files to '/home/myy/CTI_One_interview/build/w102_path_planning/install.log'
+[0.792s] Invoked command in '/home/myy/CTI_One_interview/src/w102_path_planning' returned '0': PYTHONPATH=/home/myy/CTI_One_interview/build/w102_path_planning/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/w102_path_planning build --build-base /home/myy/CTI_One_interview/build/w102_path_planning/build install --record /home/myy/CTI_One_interview/build/w102_path_planning/install.log --single-version-externally-managed install_data

@@ -24,7 +24,8 @@
         <scene>scene</scene>
         <ambient_light>0.5 0.5 0.5</ambient_light>
         <background_color>0.55 0.73 0.87</background_color>
-        <camera_pose>4 -1.5 4 0 0.75 2.5</camera_pose>
+        <!-- Camera framed on the right-side path S→R1→R2→G -->
+        <camera_pose>0 1.5 7 0 1.5708 0</camera_pose>
         <camera_clip><near>0.1</near><far>100</far></camera_clip>
       </plugin>
 
@@ -467,8 +468,8 @@
         <wheel_separation>0.54</wheel_separation>
         <wheel_radius>0.10</wheel_radius>
         <odom_publish_frequency>50</odom_publish_frequency>
-        <topic>cmd_vel</topic>
-        <odom_topic>odom</odom_topic>
+        <topic>/cmd_vel</topic>
+        <odom_topic>/odom</odom_topic>
         <frame_id>odom</frame_id>
         <child_frame_id>base_link</child_frame_id>
       </plugin>
@@ -476,7 +477,7 @@
       <!-- Joint state publisher -->
       <plugin filename="gz-sim-joint-state-publisher-system"
               name="gz::sim::systems::JointStatePublisher">
-        <topic>joint_states</topic>
+        <topic>/joint_states</topic>
       </plugin>
 
     </model>

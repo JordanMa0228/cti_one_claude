@@ -1,0 +1,107 @@
+[0.000000] (-) TimerEvent: {}
+[0.002146] (w102_path_planning) JobQueued: {'identifier': 'w102_path_planning', 'dependencies': OrderedDict()}
+[0.002277] (w102_path_planning) JobStarted: {'identifier': 'w102_path_planning'}
+[0.099449] (-) TimerEvent: {}
+[0.199852] (-) TimerEvent: {}
+[0.300099] (-) TimerEvent: {}
+[0.400328] (-) TimerEvent: {}
+[0.500559] (-) TimerEvent: {}
+[0.601354] (-) TimerEvent: {}
+[0.701683] (-) TimerEvent: {}
+[0.802141] (-) TimerEvent: {}
+[0.902524] (-) TimerEvent: {}
+[1.003713] (-) TimerEvent: {}
+[1.104125] (-) TimerEvent: {}
+[1.204548] (-) TimerEvent: {}
+[1.304825] (-) TimerEvent: {}
+[1.405135] (-) TimerEvent: {}
+[1.505322] (-) TimerEvent: {}
+[1.605515] (-) TimerEvent: {}
+[1.705737] (-) TimerEvent: {}
+[1.805986] (-) TimerEvent: {}
+[1.906333] (-) TimerEvent: {}
+[2.006788] (-) TimerEvent: {}
+[2.107257] (-) TimerEvent: {}
+[2.207563] (-) TimerEvent: {}
+[2.307867] (-) TimerEvent: {}
+[2.408219] (-) TimerEvent: {}
+[2.510174] (-) TimerEvent: {}
+[2.610618] (-) TimerEvent: {}
+[2.710877] (-) TimerEvent: {}
+[2.811244] (-) TimerEvent: {}
+[2.911683] (-) TimerEvent: {}
+[3.011974] (-) TimerEvent: {}
+[3.112432] (-) TimerEvent: {}
+[3.128060] (w102_path_planning) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--uninstall', '--editable', '--build-directory', '/home/myy/CTI_One_interview/build/w102_path_planning/build'], 'cwd': '/home/myy/CTI_One_interview/build/w102_path_planning', 'env': {'GZ_SIM_RESOURCE_PATH': '/opt/ros/kilted/share', 'USER': 'root', 'GZ_CONFIG_PATH': '/opt/ros/kilted/opt/gz_sim_vendor/share/gz:/opt/ros/kilted/opt/sdformat_vendor/share/gz:/opt/ros/kilted/opt/gz_gui_vendor/share/gz:/opt/ros/kilted/opt/gz_transport_vendor/share/gz:/opt/ros/kilted/opt/gz_rendering_vendor/share/gz:/opt/ros/kilted/opt/gz_plugin_vendor/share/gz:/opt/ros/kilted/opt/gz_fuel_tools_vendor/share/gz:/opt/ros/kilted/opt/gz_msgs_vendor/share/gz:/opt/ros/kilted/opt/gz_common_vendor/share/gz', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/kilted/opt/gz_sim_vendor/lib:/opt/ros/kilted/opt/gz_sensors_vendor/lib:/opt/ros/kilted/opt/gz_physics_vendor/lib:/opt/ros/kilted/opt/sdformat_vendor/lib:/opt/ros/kilted/opt/gz_gui_vendor/lib:/opt/ros/kilted/opt/gz_transport_vendor/lib:/opt/ros/kilted/opt/gz_rendering_vendor/lib:/opt/ros/kilted/opt/gz_plugin_vendor/lib:/opt/ros/kilted/opt/gz_fuel_tools_vendor/lib:/opt/ros/kilted/opt/gz_msgs_vendor/lib:/opt/ros/kilted/opt/gz_common_vendor/lib:/opt/ros/kilted/opt/gz_math_vendor/lib:/opt/ros/kilted/opt/gz_utils_vendor/lib:/opt/ros/kilted/opt/rviz_ogre_vendor/lib:/opt/ros/kilted/lib/x86_64-linux-gnu:/opt/ros/kilted/opt/gz_tools_vendor/lib:/opt/ros/kilted/opt/gz_ogre_next_vendor/lib:/opt/ros/kilted/opt/gz_dartsim_vendor/lib:/opt/ros/kilted/opt/gz_cmake_vendor/lib:/opt/ros/kilted/lib', 'HOME': '/root', 'OLDPWD': '/', 'ROS_PYTHON_VERSION': '3', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/0/bus', 'WSL_DISTRO_NAME': 'Ubuntu-24.04', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'kilted', 'LOGNAME': 'root', 'NAME': 'myy', 'WSL_INTEROP': '/run/WSL/15073_interop', 'PULSE_SERVER': 'unix:/mnt/wslg/PulseServer', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'TERM': 'xterm-256color', 'PATH': '/opt/ros/kilted/opt/gz_msgs_vendor/bin:/opt/ros/kilted/opt/gz_tools_vendor/bin:/opt/ros/kilted/opt/gz_ogre_next_vendor/bin:/opt/ros/kilted/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/马扬洋/bin:/mnt/c/Program Files/Git/mingw64/bin:/mnt/c/Program Files/Git/usr/local/bin:/mnt/c/Program Files/Git/usr/bin:/mnt/c/Program Files/Git/usr/bin:/mnt/c/Program Files/Git/mingw64/bin:/mnt/c/Program Files/Git/usr/bin:/mnt/c/Users/马扬洋/bin:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0:/mnt/c/windows/System32/OpenSSH:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Users/Administrator/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files/HP/OMEN-Broadcast/Common:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0:/mnt/c/WINDOWS/System32/OpenSSH:/mnt/c/Program Files (x86)/Windows Kits/8.1/Windows Performance Toolkit:/mnt/c/Program Files/dotnet:/mnt/c/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/马扬洋/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/马扬洋/.dotnet/tools:/mnt/c/Program Files/Git/mingw64/bin:/mnt/c/Program Files/Git/usr/bin/vendor_perl:/mnt/c/Program Files/Git/usr/bin/core_perl:/mnt/c/Users/马扬洋/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/7f9f7181-77a8-4901-bf35-1c452d3685bf/801893fc-a9c5-48bd-b75a-8940b3f43b9d/bin', 'XDG_RUNTIME_DIR': '/run/user/0/', 'DISPLAY': ':0', 'LANG': 'C.UTF-8', 'AMENT_PREFIX_PATH': '/opt/ros/kilted', 'SHELL': '/bin/bash', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'PWD': '/home/myy/CTI_One_interview/build/w102_path_planning', 'PYTHONPATH': '/home/myy/CTI_One_interview/build/w102_path_planning/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages:/opt/ros/kilted/lib/python3.12/site-packages', 'COLCON': '1', 'WSL2_GUI_APPS_ENABLED': '1', 'HOSTTYPE': 'x86_64', 'CMAKE_PREFIX_PATH': '/opt/ros/kilted/opt/gz_sim_vendor:/opt/ros/kilted/opt/gz_sensors_vendor:/opt/ros/kilted/opt/gz_physics_vendor:/opt/ros/kilted/opt/sdformat_vendor:/opt/ros/kilted/opt/gz_gui_vendor:/opt/ros/kilted/opt/gz_transport_vendor:/opt/ros/kilted/opt/gz_rendering_vendor:/opt/ros/kilted/opt/gz_plugin_vendor:/opt/ros/kilted/opt/gz_fuel_tools_vendor:/opt/ros/kilted/opt/gz_msgs_vendor:/opt/ros/kilted/opt/gz_common_vendor:/opt/ros/kilted/opt/gz_math_vendor:/opt/ros/kilted/opt/gz_utils_vendor:/opt/ros/kilted/opt/gz_tools_vendor:/opt/ros/kilted/opt/gz_ogre_next_vendor:/opt/ros/kilted/opt/gz_dartsim_vendor:/opt/ros/kilted/opt/gz_cmake_vendor', 'WSLENV': ''}, 'shell': False}
+[3.212569] (-) TimerEvent: {}
+[3.312886] (-) TimerEvent: {}
+[3.413210] (-) TimerEvent: {}
+[3.513576] (-) TimerEvent: {}
+[3.616344] (-) TimerEvent: {}
+[3.716786] (-) TimerEvent: {}
+[3.817050] (-) TimerEvent: {}
+[3.917348] (-) TimerEvent: {}
+[3.935198] (w102_path_planning) StdoutLine: {'line': b'running develop\n'}
+[4.017544] (-) TimerEvent: {}
+[4.117886] (-) TimerEvent: {}
+[4.218188] (-) TimerEvent: {}
+[4.318509] (-) TimerEvent: {}
+[4.418870] (-) TimerEvent: {}
+[4.446781] (w102_path_planning) StdoutLine: {'line': b'Removing /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102-path-planning.egg-link (link to .)\n'}
+[4.519165] (-) TimerEvent: {}
+[4.529179] (w102_path_planning) CommandEnded: {'returncode': 0}
+[4.532733] (w102_path_planning) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../../build/w102_path_planning', 'build', '--build-base', '/home/myy/CTI_One_interview/build/w102_path_planning/build', 'install', '--record', '/home/myy/CTI_One_interview/build/w102_path_planning/install.log', '--single-version-externally-managed', 'install_data', '--force'], 'cwd': '/home/myy/CTI_One_interview/src/w102_path_planning', 'env': {'GZ_SIM_RESOURCE_PATH': '/opt/ros/kilted/share', 'USER': 'root', 'GZ_CONFIG_PATH': '/opt/ros/kilted/opt/gz_sim_vendor/share/gz:/opt/ros/kilted/opt/sdformat_vendor/share/gz:/opt/ros/kilted/opt/gz_gui_vendor/share/gz:/opt/ros/kilted/opt/gz_transport_vendor/share/gz:/opt/ros/kilted/opt/gz_rendering_vendor/share/gz:/opt/ros/kilted/opt/gz_plugin_vendor/share/gz:/opt/ros/kilted/opt/gz_fuel_tools_vendor/share/gz:/opt/ros/kilted/opt/gz_msgs_vendor/share/gz:/opt/ros/kilted/opt/gz_common_vendor/share/gz', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/kilted/opt/gz_sim_vendor/lib:/opt/ros/kilted/opt/gz_sensors_vendor/lib:/opt/ros/kilted/opt/gz_physics_vendor/lib:/opt/ros/kilted/opt/sdformat_vendor/lib:/opt/ros/kilted/opt/gz_gui_vendor/lib:/opt/ros/kilted/opt/gz_transport_vendor/lib:/opt/ros/kilted/opt/gz_rendering_vendor/lib:/opt/ros/kilted/opt/gz_plugin_vendor/lib:/opt/ros/kilted/opt/gz_fuel_tools_vendor/lib:/opt/ros/kilted/opt/gz_msgs_vendor/lib:/opt/ros/kilted/opt/gz_common_vendor/lib:/opt/ros/kilted/opt/gz_math_vendor/lib:/opt/ros/kilted/opt/gz_utils_vendor/lib:/opt/ros/kilted/opt/rviz_ogre_vendor/lib:/opt/ros/kilted/lib/x86_64-linux-gnu:/opt/ros/kilted/opt/gz_tools_vendor/lib:/opt/ros/kilted/opt/gz_ogre_next_vendor/lib:/opt/ros/kilted/opt/gz_dartsim_vendor/lib:/opt/ros/kilted/opt/gz_cmake_vendor/lib:/opt/ros/kilted/lib', 'HOME': '/root', 'OLDPWD': '/', 'ROS_PYTHON_VERSION': '3', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/0/bus', 'WSL_DISTRO_NAME': 'Ubuntu-24.04', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'kilted', 'LOGNAME': 'root', 'NAME': 'myy', 'WSL_INTEROP': '/run/WSL/15073_interop', 'PULSE_SERVER': 'unix:/mnt/wslg/PulseServer', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'TERM': 'xterm-256color', 'PATH': '/opt/ros/kilted/opt/gz_msgs_vendor/bin:/opt/ros/kilted/opt/gz_tools_vendor/bin:/opt/ros/kilted/opt/gz_ogre_next_vendor/bin:/opt/ros/kilted/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/马扬洋/bin:/mnt/c/Program Files/Git/mingw64/bin:/mnt/c/Program Files/Git/usr/local/bin:/mnt/c/Program Files/Git/usr/bin:/mnt/c/Program Files/Git/usr/bin:/mnt/c/Program Files/Git/mingw64/bin:/mnt/c/Program Files/Git/usr/bin:/mnt/c/Users/马扬洋/bin:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0:/mnt/c/windows/System32/OpenSSH:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Users/Administrator/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files/HP/OMEN-Broadcast/Common:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0:/mnt/c/WINDOWS/System32/OpenSSH:/mnt/c/Program Files (x86)/Windows Kits/8.1/Windows Performance Toolkit:/mnt/c/Program Files/dotnet:/mnt/c/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/马扬洋/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/马扬洋/.dotnet/tools:/mnt/c/Program Files/Git/mingw64/bin:/mnt/c/Program Files/Git/usr/bin/vendor_perl:/mnt/c/Program Files/Git/usr/bin/core_perl:/mnt/c/Users/马扬洋/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/7f9f7181-77a8-4901-bf35-1c452d3685bf/801893fc-a9c5-48bd-b75a-8940b3f43b9d/bin', 'XDG_RUNTIME_DIR': '/run/user/0/', 'DISPLAY': ':0', 'LANG': 'C.UTF-8', 'AMENT_PREFIX_PATH': '/opt/ros/kilted', 'SHELL': '/bin/bash', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'PWD': '/home/myy/CTI_One_interview/build/w102_path_planning', 'PYTHONPATH': '/home/myy/CTI_One_interview/build/w102_path_planning/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages:/opt/ros/kilted/lib/python3.12/site-packages', 'COLCON': '1', 'WSL2_GUI_APPS_ENABLED': '1', 'HOSTTYPE': 'x86_64', 'CMAKE_PREFIX_PATH': '/opt/ros/kilted/opt/gz_sim_vendor:/opt/ros/kilted/opt/gz_sensors_vendor:/opt/ros/kilted/opt/gz_physics_vendor:/opt/ros/kilted/opt/sdformat_vendor:/opt/ros/kilted/opt/gz_gui_vendor:/opt/ros/kilted/opt/gz_transport_vendor:/opt/ros/kilted/opt/gz_rendering_vendor:/opt/ros/kilted/opt/gz_plugin_vendor:/opt/ros/kilted/opt/gz_fuel_tools_vendor:/opt/ros/kilted/opt/gz_msgs_vendor:/opt/ros/kilted/opt/gz_common_vendor:/opt/ros/kilted/opt/gz_math_vendor:/opt/ros/kilted/opt/gz_utils_vendor:/opt/ros/kilted/opt/gz_tools_vendor:/opt/ros/kilted/opt/gz_ogre_next_vendor:/opt/ros/kilted/opt/gz_dartsim_vendor:/opt/ros/kilted/opt/gz_cmake_vendor', 'WSLENV': ''}, 'shell': False}
+[4.619392] (-) TimerEvent: {}
+[4.719596] (-) TimerEvent: {}
+[4.819914] (-) TimerEvent: {}
+[4.920270] (-) TimerEvent: {}
+[5.021315] (-) TimerEvent: {}
+[5.121620] (-) TimerEvent: {}
+[5.221949] (-) TimerEvent: {}
+[5.244659] (w102_path_planning) StdoutLine: {'line': b'running egg_info\n'}
+[5.293223] (w102_path_planning) StdoutLine: {'line': b'writing ../../build/w102_path_planning/w102_path_planning.egg-info/PKG-INFO\n'}
+[5.303487] (w102_path_planning) StdoutLine: {'line': b'writing dependency_links to ../../build/w102_path_planning/w102_path_planning.egg-info/dependency_links.txt\n'}
+[5.304405] (w102_path_planning) StdoutLine: {'line': b'writing entry points to ../../build/w102_path_planning/w102_path_planning.egg-info/entry_points.txt\n'}
+[5.305211] (w102_path_planning) StdoutLine: {'line': b'writing requirements to ../../build/w102_path_planning/w102_path_planning.egg-info/requires.txt\n'}
+[5.305626] (w102_path_planning) StdoutLine: {'line': b'writing top-level names to ../../build/w102_path_planning/w102_path_planning.egg-info/top_level.txt\n'}
+[5.324651] (-) TimerEvent: {}
+[5.399891] (w102_path_planning) StdoutLine: {'line': b"reading manifest file '../../build/w102_path_planning/w102_path_planning.egg-info/SOURCES.txt'\n"}
+[5.402176] (w102_path_planning) StdoutLine: {'line': b"writing manifest file '../../build/w102_path_planning/w102_path_planning.egg-info/SOURCES.txt'\n"}
+[5.403114] (w102_path_planning) StdoutLine: {'line': b'running build\n'}
+[5.403340] (w102_path_planning) StdoutLine: {'line': b'running build_py\n'}
+[5.403698] (w102_path_planning) StdoutLine: {'line': b'running install\n'}
+[5.416814] (w102_path_planning) StdoutLine: {'line': b'running install_lib\n'}
+[5.424894] (-) TimerEvent: {}
+[5.469838] (w102_path_planning) StdoutLine: {'line': b'creating /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning\n'}
+[5.470682] (w102_path_planning) StdoutLine: {'line': b'copying /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning/w102_gazebo_nav.py -> /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning\n'}
+[5.471406] (w102_path_planning) StdoutLine: {'line': b'copying /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning/w102_viz_markers.py -> /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning\n'}
+[5.473440] (w102_path_planning) StdoutLine: {'line': b'copying /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning/__init__.py -> /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning\n'}
+[5.473823] (w102_path_planning) StdoutLine: {'line': b'copying /home/myy/CTI_One_interview/build/w102_path_planning/build/lib/w102_path_planning/w102_path_sim.py -> /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning\n'}
+[5.475792] (w102_path_planning) StdoutLine: {'line': b'byte-compiling /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning/w102_gazebo_nav.py to w102_gazebo_nav.cpython-312.pyc\n'}
+[5.480418] (w102_path_planning) StdoutLine: {'line': b'byte-compiling /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning/w102_viz_markers.py to w102_viz_markers.cpython-312.pyc\n'}
+[5.488930] (w102_path_planning) StdoutLine: {'line': b'byte-compiling /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning/__init__.py to __init__.cpython-312.pyc\n'}
+[5.489949] (w102_path_planning) StdoutLine: {'line': b'byte-compiling /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning/w102_path_sim.py to w102_path_sim.cpython-312.pyc\n'}
+[5.499971] (w102_path_planning) StdoutLine: {'line': b'running install_data\n'}
+[5.500579] (w102_path_planning) StdoutLine: {'line': b'copying resource/w102_path_planning -> /home/myy/CTI_One_interview/install/w102_path_planning/share/ament_index/resource_index/packages\n'}
+[5.501095] (w102_path_planning) StdoutLine: {'line': b'copying package.xml -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning\n'}
+[5.501730] (w102_path_planning) StdoutLine: {'line': b'copying launch/w102_gazebo.launch.py -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/launch\n'}
+[5.502223] (w102_path_planning) StdoutLine: {'line': b'copying launch/w102_path_planning.launch.py -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/launch\n'}
+[5.503795] (w102_path_planning) StdoutLine: {'line': b'copying worlds/living_room.sdf -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/worlds\n'}
+[5.505009] (w102_path_planning) StdoutLine: {'line': b'copying config/ros_gz_bridge.yaml -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/config\n'}
+[5.505249] (w102_path_planning) StdoutLine: {'line': b'copying urdf/w102_robot.urdf.xacro -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/urdf\n'}
+[5.505990] (w102_path_planning) StdoutLine: {'line': b'copying rviz/w102_sim.rviz -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/rviz\n'}
+[5.507105] (w102_path_planning) StdoutLine: {'line': b'running install_egg_info\n'}
+[5.525068] (-) TimerEvent: {}
+[5.556599] (w102_path_planning) StdoutLine: {'line': b'Copying ../../build/w102_path_planning/w102_path_planning.egg-info to /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102_path_planning-1.0.0-py3.12.egg-info\n'}
+[5.560681] (w102_path_planning) StdoutLine: {'line': b'running install_scripts\n'}
+[5.625420] (-) TimerEvent: {}
+[5.725758] (-) TimerEvent: {}
+[5.826046] (-) TimerEvent: {}
+[5.892457] (w102_path_planning) StdoutLine: {'line': b'Installing w102_gazebo_nav script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning\n'}
+[5.893422] (w102_path_planning) StdoutLine: {'line': b'Installing w102_path_sim script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning\n'}
+[5.893887] (w102_path_planning) StdoutLine: {'line': b'Installing w102_viz_markers script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning\n'}
+[5.894513] (w102_path_planning) StdoutLine: {'line': b"writing list of installed files to '/home/myy/CTI_One_interview/build/w102_path_planning/install.log'\n"}
+[5.926180] (-) TimerEvent: {}
+[5.960586] (w102_path_planning) CommandEnded: {'returncode': 0}
+[5.997579] (w102_path_planning) JobEnded: {'identifier': 'w102_path_planning', 'rc': 0}
+[6.000451] (-) EventReactorShutdown: {}
