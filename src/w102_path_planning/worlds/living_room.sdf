@@ -390,7 +390,7 @@
       <joint name="left_wheel_joint" type="revolute">
         <parent>base_link</parent>
         <child>left_wheel</child>
-        <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+        <axis><xyz>1 0 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
       </joint>
 
       <!-- Right drive wheel -->
@@ -413,7 +413,7 @@
       <joint name="right_wheel_joint" type="revolute">
         <parent>base_link</parent>
         <child>right_wheel</child>
-        <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+        <axis><xyz>1 0 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
       </joint>
 
       <!-- Front caster wheel -->
@@ -470,6 +470,7 @@
         <odom_publish_frequency>50</odom_publish_frequency>
         <topic>/cmd_vel</topic>
         <odom_topic>/odom</odom_topic>
+        <tf_topic>/tf</tf_topic>
         <frame_id>odom</frame_id>
         <child_frame_id>base_link</child_frame_id>
       </plugin>
