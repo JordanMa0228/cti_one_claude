@@ -59,9 +59,9 @@ def generate_launch_description():
 
     rviz_on = LaunchConfiguration('rviz')
 
-    # ── 1. Gazebo physics server (always headless — reliable in WSL) ─────────
+    # ── 1. Gazebo Sim — GUI with OGRE1 engine (xcb/GLX via XWayland + D3D12) ─
     gz_server = ExecuteProcess(
-        cmd=['gz', 'sim', '-r', '-s', world_file],
+        cmd=['gz', 'sim', '-r', world_file],
         output='screen',
         additional_env=GZ_ENV,
     )

@@ -23,19 +23,26 @@ from launch.substitutions import Command, FindExecutable, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 
-GZ_ENV = {'GZ_IP': '127.0.0.1'}
-
-# Inject display variables so Qt apps launched by ros2 launch can find the screen.
-# WSLg provides both X11 (:0) and Wayland (wayland-0); prefer Wayland for stability.
 _DISPLAY     = os.environ.get('DISPLAY', ':0')
 _WAYLAND     = os.environ.get('WAYLAND_DISPLAY', 'wayland-0')
 _XDG_RUNTIME = os.environ.get('XDG_RUNTIME_DIR', f'/run/user/{os.getuid()}')
 
+# Gazebo (OGRE1) needs X11/GLX.  Use xcb platform so Qt opens via XWayland,
+# which gives OGRE1 a proper GLX context.  D3D12 Mesa driver handles the GPU.
+GZ_ENV = {
+    'GZ_IP':                          '127.0.0.1',
+    'DISPLAY':                        _DISPLAY,
+    'QT_QPA_PLATFORM':                'xcb',
+    'MESA_D3D12_DEFAULT_ADAPTER_NAME': 'NVIDIA',
+    'XDG_RUNTIME_DIR':                _XDG_RUNTIME,
+}
+
+# RViz2 / other Qt tools use Wayland natively (more reliable in WSLg)
 GUI_ENV = {
     'DISPLAY':          _DISPLAY,
     'WAYLAND_DISPLAY':  _WAYLAND,
     'XDG_RUNTIME_DIR':  _XDG_RUNTIME,
-    'QT_QPA_PLATFORM':  'wayland',      # use Wayland instead of XCB
+    'QT_QPA_PLATFORM':  'wayland',
 }
 
 
@@ -52,9 +59,9 @@ def generate_launch_description():
 
     rviz_on = LaunchConfiguration('rviz')
 
-    # ── 1. Gazebo physics server (always headless — reliable in WSL) ─────────
+    # ── 1. Gazebo Sim — GUI with OGRE1 engine (xcb/GLX via XWayland + D3D12) ─
     gz_server = ExecuteProcess(
-        cmd=['gz', 'sim', '-r', '-s', world_file],
+        cmd=['gz', 'sim', '-r', world_file],
         output='screen',
         additional_env=GZ_ENV,
     )
