@@ -4,15 +4,19 @@ W102 Gazebo Navigation Node
 Drives W102 through the planned right-side path in Gazebo using odometry feedback
 and a proportional angular+linear controller.
 
-Waypoints (feet → metres, 1 ft = 0.3048 m):
-  S  (0,    0)    ft  →  (0.000,  0.300) m  [start, slight offset from south wall]
-  R1 (2.8,  0)    ft  →  (0.853,  0.300) m  [centred in valid corridor 0.796–0.912 m]
-  R2 (2.8,  6)    ft  →  (0.853,  1.829) m
-  G  (0,   10)    ft  →  (0.000,  3.048) m  [John]
+Waypoints (world frame = odom frame, metres):
+  S  →  (0.000,  0.750) m  [spawn; 0.750 m from south wall inner face at y=0.000]
+  R1 →  (0.700,  0.750) m  [east corridor, same y as spawn]
+  R2 →  (0.700,  2.950) m  [north of chair, near north wall]
+  G  →  (0.000,  2.950) m  [near John at y=3.048]
 
-  R1/R2 x chosen so the 0.813 m-wide robot body clears both constraints:
-    east wall inner face (1.524 m) — 14 cm margin at peak 45-deg rotation
-    chair right edge (0.25 m)      — 14 cm margin at worst early-declare stop
+  Rotation sweep radius = sqrt((0.686/2)²+(0.813/2)²) = 0.532 m
+  ARRIVE_DIST = 0.15 m → worst-case centre at R1 = 0.700+0.150 = 0.850 m
+  Worst-case east reach during 90° rotation = 0.850+0.532 = 1.382 m
+  East wall inner face = 1.524 m  →  margin = 142 mm  ✓  (was 42 mm at x=0.800)
+  Chair east-edge clearance (half-width 0.343 m): 0.700−0.343−0.250 = 107 mm  ✓
+  South inner face y=0.000: clearance at S,R1 = 0.750 m  ✓
+  North inner face y=3.658: clearance at R2,G  = 0.708 m  ✓
 
 Topics consumed:
   /odom  (nav_msgs/Odometry)  — provided by ros-gz bridge from Gazebo diff-drive plugin
@@ -32,15 +36,15 @@ from std_msgs.msg import String
 
 
 # ---------------------------------------------------------------------------
-# Waypoints in metres  (world frame, matching the SDF)
-# Robot is spawned at (0, 0.3) facing +Y  (yaw = π/2)
+# Waypoints in metres  (world frame = odom frame, matching the SDF)
+# Robot is spawned at (0, 0.750) facing +Y  (yaw = π/2)
+# Rotation sweep radius = 0.532 m  →  all waypoints keep >= 0.682 m from walls
 # ---------------------------------------------------------------------------
-FT = 0.3048   # feet → metres
 
 WAYPOINTS = [
-    (2.8 * FT,  0 * FT + 0.3),   # R1 — 2.8 ft centres robot in valid corridor [0.796, 0.912] m
-    (2.8 * FT,  6 * FT),          # R2
-    (0   * FT, 10 * FT),          # G  = John
+    (0.700,  0.750),   # R1 — east corridor; worst-case rotation sweep 1.382 m vs wall 1.524 m
+    (0.700,  2.950),   # R2 — north of chair; 142 mm east-wall margin, 107 mm chair clearance
+    (0.000,  2.950),   # G  — near John (y=3.048); 0.708 m from north wall
 ]
 WAYPOINT_LABELS = ['R1', 'R2', 'G (John)']
 
@@ -73,7 +77,7 @@ class W102GazeboNav(Node):
 
         # State
         self.x = 0.0
-        self.y = 0.3
+        self.y = 0.750
         self.yaw = math.pi / 2   # facing +Y initially
         self.odom_received = False
         self.wp_idx = 0

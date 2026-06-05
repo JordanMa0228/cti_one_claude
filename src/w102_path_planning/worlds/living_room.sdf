@@ -3,15 +3,16 @@
   Living room world for W102 path-planning simulation.
   Room: 10 ft × 12 ft  →  3.048 m × 3.658 m
   Coordinate system: X = east, Y = north, Z = up
-  Robot start: (0, 0) m  |  Chair: (0, 1.219) m  |  John: (0, 3.048) m
+  Robot start: (0, 0.750) m  |  Chair: (0, 1.219) m  |  John: (0, 3.048) m
 -->
 <sdf version="1.9">
   <world name="living_room">
 
-    <!-- ===== GUI camera — angled view showing the full right-side path ===== -->
+    <!-- ===== GUI camera — top-down view centred on room, matching RViz layout ===== -->
     <!--
-      Camera at (4, -1.5, 4) looking toward room centre.
-      Pitch 0.75 rad (~43°) down, Yaw 2.5 rad to face the action.
+      Camera directly above room centre (0, 1.829) at z=8.
+      Pitch π/2 = looking straight down. Yaw 0 = north (+Y) at top of screen.
+      Matches RViz default top-down orientation: +X right, +Y up.
     -->
     <gui fullscreen="0">
       <plugin filename="MinimalScene" name="3D View">
@@ -24,8 +25,8 @@
         <scene>scene</scene>
         <ambient_light>0.5 0.5 0.5</ambient_light>
         <background_color>0.55 0.73 0.87</background_color>
-        <!-- Camera framed on the right-side path S→R1→R2→G -->
-        <camera_pose>0 1.5 7 0 1.5708 0</camera_pose>
+        <!-- Top-down, centred on room midpoint (x=0, y=1.829), height 8 m -->
+        <camera_pose>0 1.829 8 0 1.5708 0</camera_pose>
         <camera_clip><near>0.1</near><far>100</far></camera_clip>
       </plugin>
 
@@ -283,7 +284,7 @@
     <!-- ===== Graph waypoint markers (visual only) ===== -->
     <model name="wp_R1">
       <static>true</static>
-      <pose>0.8534 0 0.02 0 0 0</pose>
+      <pose>0.700 0.750 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>
@@ -294,7 +295,7 @@
 
     <model name="wp_R2">
       <static>true</static>
-      <pose>0.8534 1.8288 0.02 0 0 0</pose>
+      <pose>0.700 2.950 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>
@@ -305,7 +306,7 @@
 
     <model name="wp_L1">
       <static>true</static>
-      <pose>-0.9144 0 0.02 0 0 0</pose>
+      <pose>-0.700 0.750 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>
@@ -316,7 +317,7 @@
 
     <model name="wp_L2">
       <static>true</static>
-      <pose>-0.9144 1.8288 0.02 0 0 0</pose>
+      <pose>-0.700 2.950 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>
@@ -330,10 +331,12 @@
       Base footprint: 0.686 m × 0.813 m (27 in × 32 in)
       Drive wheels:   radius 0.10 m, separation 0.54 m
       Caster wheel:   radius 0.05 m at front
-      Initial pose:   (0, 0.3) m, facing +Y (yaw = π/2)
+      Initial pose:   (0, 0.750) m, facing +Y (yaw = π/2)
+      Rotation sweep radius = sqrt((0.686/2)²+(0.813/2)²) = 0.532 m
+      South wall inner face at y=0.000 m → minimum safe y = 0.532+0.15 = 0.682 m
     -->
     <model name="w102">
-      <pose>0 0.3 0.12 0 0 1.5708</pose>
+      <pose>0 0.750 0.12 0 0 1.5708</pose>
 
       <!-- Base link -->
       <link name="base_link">
