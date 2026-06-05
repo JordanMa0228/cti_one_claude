@@ -283,7 +283,7 @@
     <!-- ===== Graph waypoint markers (visual only) ===== -->
     <model name="wp_R1">
       <static>true</static>
-      <pose>0.762 0 0.02 0 0 0</pose>
+      <pose>0.8534 0 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>
@@ -294,7 +294,7 @@
 
     <model name="wp_R2">
       <static>true</static>
-      <pose>0.762 1.8288 0.02 0 0 0</pose>
+      <pose>0.8534 1.8288 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>

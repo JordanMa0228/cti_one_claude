@@ -6,9 +6,13 @@ and a proportional angular+linear controller.
 
 Waypoints (feet → metres, 1 ft = 0.3048 m):
   S  (0,    0)    ft  →  (0.000,  0.300) m  [start, slight offset from south wall]
-  R1 (2.5,  0)    ft  →  (0.762,  0.300) m  [pulled in from 3 ft — east-wall clearance]
-  R2 (2.5,  6)    ft  →  (0.762,  1.829) m
+  R1 (2.8,  0)    ft  →  (0.853,  0.300) m  [centred in valid corridor 0.796–0.912 m]
+  R2 (2.8,  6)    ft  →  (0.853,  1.829) m
   G  (0,   10)    ft  →  (0.000,  3.048) m  [John]
+
+  R1/R2 x chosen so the 0.813 m-wide robot body clears both constraints:
+    east wall inner face (1.524 m) — 14 cm margin at peak 45-deg rotation
+    chair right edge (0.25 m)      — 14 cm margin at worst early-declare stop
 
 Topics consumed:
   /odom  (nav_msgs/Odometry)  — provided by ros-gz bridge from Gazebo diff-drive plugin
@@ -34,8 +38,8 @@ from std_msgs.msg import String
 FT = 0.3048   # feet → metres
 
 WAYPOINTS = [
-    (2.5 * FT,  0 * FT + 0.3),   # R1 — pulled in to 2.5 ft; 3 ft put robot body within 8 cm of east wall during turn
-    (2.5 * FT,  6 * FT),          # R2
+    (2.8 * FT,  0 * FT + 0.3),   # R1 — 2.8 ft centres robot in valid corridor [0.796, 0.912] m
+    (2.8 * FT,  6 * FT),          # R2
     (0   * FT, 10 * FT),          # G  = John
 ]
 WAYPOINT_LABELS = ['R1', 'R2', 'G (John)']
@@ -50,7 +54,7 @@ class W102GazeboNav(Node):
     MAX_ANG = 1.2    # rad/s top turn speed
 
     # Tolerances
-    ARRIVE_DIST  = 0.20   # m  — consider waypoint reached (larger robot needs more tolerance)
+    ARRIVE_DIST  = 0.15   # m  — consider waypoint reached
     ALIGN_THRESH = 0.08   # rad — start moving forward only when aligned
 
     def __init__(self):
