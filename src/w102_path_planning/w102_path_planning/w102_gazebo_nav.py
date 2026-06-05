@@ -6,8 +6,8 @@ and a proportional angular+linear controller.
 
 Waypoints (feet → metres, 1 ft = 0.3048 m):
   S  (0,    0)    ft  →  (0.000,  0.300) m  [start, slight offset from south wall]
-  R1 (3,    0)    ft  →  (0.914,  0.300) m
-  R2 (3,    6)    ft  →  (0.914,  1.829) m
+  R1 (2.5,  0)    ft  →  (0.762,  0.300) m  [pulled in from 3 ft — east-wall clearance]
+  R2 (2.5,  6)    ft  →  (0.762,  1.829) m
   G  (0,   10)    ft  →  (0.000,  3.048) m  [John]
 
 Topics consumed:
@@ -34,9 +34,9 @@ from std_msgs.msg import String
 FT = 0.3048   # feet → metres
 
 WAYPOINTS = [
-    (3 * FT,  0 * FT + 0.3),   # R1 — same y-row as robot start
-    (3 * FT,  6 * FT),          # R2
-    (0 * FT, 10 * FT),          # G  = John
+    (2.5 * FT,  0 * FT + 0.3),   # R1 — pulled in to 2.5 ft; 3 ft put robot body within 8 cm of east wall during turn
+    (2.5 * FT,  6 * FT),          # R2
+    (0   * FT, 10 * FT),          # G  = John
 ]
 WAYPOINT_LABELS = ['R1', 'R2', 'G (John)']
 
@@ -50,7 +50,7 @@ class W102GazeboNav(Node):
     MAX_ANG = 1.2    # rad/s top turn speed
 
     # Tolerances
-    ARRIVE_DIST  = 0.12   # m  — consider waypoint reached
+    ARRIVE_DIST  = 0.20   # m  — consider waypoint reached (larger robot needs more tolerance)
     ALIGN_THRESH = 0.08   # rad — start moving forward only when aligned
 
     def __init__(self):
