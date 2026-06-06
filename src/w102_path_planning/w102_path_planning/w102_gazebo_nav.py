@@ -76,11 +76,19 @@ class W102GazeboNav(Node):
     ARRIVE_DIST = 0.15   # m
 
     # ---- Alignment thresholds -------------------------------------------
-    COARSE_THRESH        = 0.20   # rad: ALIGNING → BRAKING
-    FINE_THRESH          = 0.12   # rad: after brake, enter DRIVING
-    REALIGN_THRESH       = 0.25   # rad: DRIVING → ALIGNING
+    # COARSE_THRESH:   stop spinning and brake when within this of target.
+    # REALIGN_THRESH:  while DRIVING, re-enter ALIGNING if error exceeds this.
+    #                  Must be >= COARSE_THRESH so DRIVING is never instantly
+    #                  followed by ALIGNING on the same residual error.
+    # NOTE: there is NO separate FINE_THRESH.  After braking the robot goes
+    #       directly to DRIVING; the corrective angular.z in DRIVING handles
+    #       the residual error up to REALIGN_THRESH.  A FINE_THRESH that is
+    #       tighter than COARSE_THRESH is physically impossible to satisfy
+    #       (robot cannot rotate during zero-velocity braking), creating the
+    #       ALIGNING ↔ BRAKING trap seen in the debug logs.
+    COARSE_THRESH        = 0.20   # rad (11.5°): ALIGNING → BRAKING
+    REALIGN_THRESH       = 0.30   # rad (17.2°): DRIVING  → ALIGNING
     ALIGN_TIMEOUT_TICKS  = 60     # ticks before forced brake (3 s at 20 Hz)
-                                  # prevents infinite spin / wall-contact drift
 
     # ---- Braking --------------------------------------------------------
     BRAKE_TICKS = 15   # zero-vel ticks (0.75 s at 20 Hz)
@@ -243,7 +251,7 @@ class W102GazeboNav(Node):
             if abs(angle_err) < self.COARSE_THRESH:
                 # Close enough — stop spinning so inertia can die
                 self._set_state(_BRAKING,
-                    f'err={math.degrees(angle_err):.1f}° < {math.degrees(self.COARSE_THRESH):.0f}°')
+                    f'err={math.degrees(angle_err):.1f}° < COARSE={math.degrees(self.COARSE_THRESH):.1f}°')
                 self._brake_cnt = self.BRAKE_TICKS
                 # fall through to BRAKING this tick (zero cmd)
 
@@ -263,18 +271,25 @@ class W102GazeboNav(Node):
                         min(self.MAX_ANG, self.KP_ANG * angle_err)))
 
         if self._nav_state == _BRAKING:
-            # Zero velocity — let inertia die
+            # Zero velocity — let inertia die.
+            # After braking, go directly to DRIVING unless the error is so
+            # large it exceeds REALIGN_THRESH (something went wrong during brake).
+            # There is no separate FINE_THRESH: braking cannot reduce the error
+            # (robot is stationary), so requiring a tighter threshold than
+            # COARSE_THRESH would trap the robot in ALIGNING ↔ BRAKING forever.
             self._brake_cnt -= 1
             if self._brake_cnt <= 0:
-                if abs(angle_err) < self.FINE_THRESH:
+                if abs(angle_err) <= self.REALIGN_THRESH:
                     self._set_state(_DRIVING,
-                        f'err={math.degrees(angle_err):.1f}° after brake')
+                        f'brake done  err={math.degrees(angle_err):.1f}° '
+                        f'<= REALIGN={math.degrees(self.REALIGN_THRESH):.1f}°')
                     self._stuck_cnt = 0
                     self._ref_x = self.x
                     self._ref_y = self.y
                 else:
                     self._set_state(_ALIGNING,
-                        f'err={math.degrees(angle_err):.1f}° still too large — re-rotate')
+                        f'brake done  err={math.degrees(angle_err):.1f}° '
+                        f'> REALIGN={math.degrees(self.REALIGN_THRESH):.1f}° — re-rotate')
             # cmd stays zero
 
         elif self._nav_state == _DRIVING:
