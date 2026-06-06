@@ -1,0 +1,5 @@
+[0.000000] (-) TimerEvent: {}
+[0.000193] (w102_path_planning) JobQueued: {'identifier': 'w102_path_planning', 'dependencies': OrderedDict()}
+[0.000242] (w102_path_planning) JobStarted: {'identifier': 'w102_path_planning'}
+[0.006989] (w102_path_planning) JobEnded: {'identifier': 'w102_path_planning', 'rc': 1}
+[0.007626] (-) EventReactorShutdown: {}

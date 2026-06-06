@@ -4,3 +4,6 @@ source;share/w102_path_planning/hook/pythonpath.sh
 source;share/w102_path_planning/hook/ament_prefix_path.ps1
 source;share/w102_path_planning/hook/ament_prefix_path.dsv
 source;share/w102_path_planning/hook/ament_prefix_path.sh
+source;../../build/w102_path_planning/share/w102_path_planning/hook/pythonpath_develop.ps1
+source;../../build/w102_path_planning/share/w102_path_planning/hook/pythonpath_develop.dsv
+source;../../build/w102_path_planning/share/w102_path_planning/hook/pythonpath_develop.sh

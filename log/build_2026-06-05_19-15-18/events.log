@@ -1,0 +1,41 @@
+[0.000000] (-) TimerEvent: {}
+[0.000049] (w102_path_planning) JobQueued: {'identifier': 'w102_path_planning', 'dependencies': OrderedDict()}
+[0.000895] (w102_path_planning) JobStarted: {'identifier': 'w102_path_planning'}
+[0.099905] (-) TimerEvent: {}
+[0.200227] (-) TimerEvent: {}
+[0.300365] (-) TimerEvent: {}
+[0.400524] (-) TimerEvent: {}
+[0.500705] (-) TimerEvent: {}
+[0.600860] (-) TimerEvent: {}
+[0.677385] (w102_path_planning) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/home/myy/CTI_One_interview/build/w102_path_planning/build', '--no-deps', 'symlink_data', '--force'], 'cwd': '/home/myy/CTI_One_interview/build/w102_path_planning', 'env': {'USER': 'myy', 'SHLVL': '1', 'HOME': '/home/myy', 'OLDPWD': '/', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'WSL_DISTRO_NAME': 'Ubuntu-24.04', 'WAYLAND_DISPLAY': 'wayland-0', 'LOGNAME': 'myy', 'NAME': 'myy', 'WSL_INTEROP': '/run/WSL/26562_interop', 'PULSE_SERVER': 'unix:/mnt/wslg/PulseServer', '_': '/usr/bin/colcon', 'TERM': 'xterm-256color', 'PATH': '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/windows/system32:/mnt/c/windows:/mnt/c/windows/System32/Wbem:/mnt/c/windows/System32/WindowsPowerShell/v1.0/:/mnt/c/windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Users/Administrator/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files/HP/OMEN-Broadcast/Common:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files (x86)/Windows Kits/8.1/Windows Performance Toolkit/:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit/:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/马扬洋/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/马扬洋/.dotnet/tools:/mnt/c/Program Files/Git/mingw64/bin', 'XDG_RUNTIME_DIR': '/run/user/1000/', 'DISPLAY': ':0', 'LANG': 'C.UTF-8', 'SHELL': '/bin/bash', 'PWD': '/home/myy/CTI_One_interview/build/w102_path_planning', 'COLCON': '1', 'WSL2_GUI_APPS_ENABLED': '1', 'HOSTTYPE': 'x86_64', 'WSLENV': '', 'PYTHONPATH': '/home/myy/CTI_One_interview/build/w102_path_planning/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages:'}, 'shell': False}
+[0.701041] (-) TimerEvent: {}
+[0.801231] (-) TimerEvent: {}
+[0.851033] (w102_path_planning) StdoutLine: {'line': b'running develop\n'}
+[0.901554] (-) TimerEvent: {}
+[0.924778] (w102_path_planning) StdoutLine: {'line': b'running egg_info\n'}
+[0.931623] (w102_path_planning) StdoutLine: {'line': b'writing w102_path_planning.egg-info/PKG-INFO\n'}
+[0.932319] (w102_path_planning) StdoutLine: {'line': b'writing dependency_links to w102_path_planning.egg-info/dependency_links.txt\n'}
+[0.932407] (w102_path_planning) StdoutLine: {'line': b'writing entry points to w102_path_planning.egg-info/entry_points.txt\n'}
+[0.932446] (w102_path_planning) StdoutLine: {'line': b'writing requirements to w102_path_planning.egg-info/requires.txt\n'}
+[0.932479] (w102_path_planning) StdoutLine: {'line': b'writing top-level names to w102_path_planning.egg-info/top_level.txt\n'}
+[0.946593] (w102_path_planning) StdoutLine: {'line': b"reading manifest file 'w102_path_planning.egg-info/SOURCES.txt'\n"}
+[0.947411] (w102_path_planning) StdoutLine: {'line': b"writing manifest file 'w102_path_planning.egg-info/SOURCES.txt'\n"}
+[0.955727] (w102_path_planning) StdoutLine: {'line': b'running build_ext\n'}
+[0.955883] (w102_path_planning) StdoutLine: {'line': b'Creating /home/myy/CTI_One_interview/install/w102_path_planning/lib/python3.12/site-packages/w102-path-planning.egg-link (link to .)\n'}
+[0.956377] (w102_path_planning) StdoutLine: {'line': b'Installing w102_gazebo_nav script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning\n'}
+[0.956614] (w102_path_planning) StdoutLine: {'line': b'Installing w102_path_sim script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning\n'}
+[0.956664] (w102_path_planning) StdoutLine: {'line': b'Installing w102_viz_markers script to /home/myy/CTI_One_interview/install/w102_path_planning/lib/w102_path_planning\n'}
+[0.956900] (w102_path_planning) StdoutLine: {'line': b'\n'}
+[0.957003] (w102_path_planning) StdoutLine: {'line': b'Installed /home/myy/CTI_One_interview/build/w102_path_planning\n'}
+[0.957103] (w102_path_planning) StdoutLine: {'line': b'running symlink_data\n'}
+[0.957482] (w102_path_planning) StdoutLine: {'line': b'symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/resource/w102_path_planning -> /home/myy/CTI_One_interview/install/w102_path_planning/share/ament_index/resource_index/packages\n'}
+[0.957628] (w102_path_planning) StdoutLine: {'line': b'symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/package.xml -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning\n'}
+[0.957733] (w102_path_planning) StdoutLine: {'line': b'symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/launch/w102_gazebo.launch.py -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/launch\n'}
+[0.957834] (w102_path_planning) StdoutLine: {'line': b'symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/launch/w102_path_planning.launch.py -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/launch\n'}
+[0.958142] (w102_path_planning) StdoutLine: {'line': b'symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/worlds/living_room.sdf -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/worlds\n'}
+[0.958224] (w102_path_planning) StdoutLine: {'line': b'symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/config/ros_gz_bridge.yaml -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/config\n'}
+[0.958261] (w102_path_planning) StdoutLine: {'line': b'symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/urdf/w102_robot.urdf.xacro -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/urdf\n'}
+[0.958294] (w102_path_planning) StdoutLine: {'line': b'symbolically linking /home/myy/CTI_One_interview/build/w102_path_planning/rviz/w102_sim.rviz -> /home/myy/CTI_One_interview/install/w102_path_planning/share/w102_path_planning/rviz\n'}
+[0.982669] (w102_path_planning) CommandEnded: {'returncode': 0}
+[0.995966] (w102_path_planning) JobEnded: {'identifier': 'w102_path_planning', 'rc': 0}
+[0.996697] (-) EventReactorShutdown: {}

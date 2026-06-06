@@ -18,4 +18,11 @@ w102_path_planning/__init__.py
 w102_path_planning/w102_gazebo_nav.py
 w102_path_planning/w102_path_sim.py
 w102_path_planning/w102_viz_markers.py
+w102_path_planning.egg-info/PKG-INFO
+w102_path_planning.egg-info/SOURCES.txt
+w102_path_planning.egg-info/dependency_links.txt
+w102_path_planning.egg-info/entry_points.txt
+w102_path_planning.egg-info/requires.txt
+w102_path_planning.egg-info/top_level.txt
+w102_path_planning.egg-info/zip-safe
 worlds/living_room.sdf
