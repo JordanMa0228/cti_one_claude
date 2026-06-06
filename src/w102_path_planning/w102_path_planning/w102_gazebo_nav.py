@@ -55,8 +55,9 @@ class W102GazeboNav(Node):
     MAX_ANG = 1.2    # rad/s top turn speed
 
     # Tolerances
-    ARRIVE_DIST  = 0.15   # m  — consider waypoint reached
-    ALIGN_THRESH = 0.08   # rad — start moving forward only when aligned
+    ARRIVE_DIST    = 0.15   # m   — consider waypoint reached
+    ALIGN_THRESH   = 0.08   # rad — exit rotation-only and start driving
+    REALIGN_THRESH = 0.25   # rad — re-enter rotation-only while driving (hysteresis gap prevents chatter)
 
     def __init__(self):
         super().__init__('w102_gazebo_nav',
@@ -79,6 +80,7 @@ class W102GazeboNav(Node):
         self.odom_received = False
         self.wp_idx = 0
         self.mission_done = False
+        self.aligning = True     # start each waypoint in rotation-only mode
 
         # 20 Hz control loop
         self.timer = self.create_timer(0.05, self._control_loop)
@@ -128,15 +130,23 @@ class W102GazeboNav(Node):
             self._publish_status(f'W102 reached {label} ({tx:.2f}, {ty:.2f}) m')
             self._stop()
             self.wp_idx += 1
+            self.aligning = True   # must re-align before driving to next waypoint
             return
 
         # Heading to target
         target_yaw = math.atan2(dy, dx)
         angle_err  = self._wrap(target_yaw - self.yaw)
 
+        # Hysteresis: exit rotation-only when aligned, re-enter only if badly off course.
+        # Prevents chattering at the threshold boundary.
+        if self.aligning and abs(angle_err) < self.ALIGN_THRESH:
+            self.aligning = False
+        elif not self.aligning and abs(angle_err) > self.REALIGN_THRESH:
+            self.aligning = True
+
         cmd = Twist()
 
-        if abs(angle_err) > self.ALIGN_THRESH:
+        if self.aligning:
             # Pure rotation phase
             cmd.angular.z = float(
                 max(-self.MAX_ANG, min(self.MAX_ANG, self.KP_ANG * angle_err)))
