@@ -8,10 +8,11 @@
 <sdf version="1.9">
   <world name="living_room">
 
-    <!-- ===== GUI camera — angled view showing the full right-side path ===== -->
+    <!-- ===== GUI camera — top-down view centred on the room, matching RViz ===== -->
     <!--
-      Camera at (4, -1.5, 4) looking toward room centre.
-      Pitch 0.75 rad (~43°) down, Yaw 2.5 rad to face the action.
+      Camera directly above room centre (0, 1.829, 9).
+      Pitch = pi/2 (1.5708 rad) → looks straight down.
+      Yaw = 0 → world +Y (north) points upward in the view, matching RViz default.
     -->
     <gui fullscreen="0">
       <plugin filename="MinimalScene" name="3D View">
@@ -24,8 +25,8 @@
         <scene>scene</scene>
         <ambient_light>0.5 0.5 0.5</ambient_light>
         <background_color>0.55 0.73 0.87</background_color>
-        <!-- Camera framed on the right-side path S→R1→R2→G -->
-        <camera_pose>0 1.5 7 0 1.5708 0</camera_pose>
+        <!-- Top-down, centred on room (x=0, y=1.829 = room mid-Y), 9 m height -->
+        <camera_pose>0 1.829 9 0 1.5708 0</camera_pose>
         <camera_clip><near>0.1</near><far>100</far></camera_clip>
       </plugin>
 
@@ -283,7 +284,7 @@
     <!-- ===== Graph waypoint markers (visual only) ===== -->
     <model name="wp_R1">
       <static>true</static>
-      <pose>0.8534 0 0.02 0 0 0</pose>
+      <pose>0.75 0 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>
@@ -294,7 +295,7 @@
 
     <model name="wp_R2">
       <static>true</static>
-      <pose>0.8534 1.8288 0.02 0 0 0</pose>
+      <pose>0.75 1.8288 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>

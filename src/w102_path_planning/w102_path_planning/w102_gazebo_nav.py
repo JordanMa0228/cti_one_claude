@@ -4,15 +4,16 @@ W102 Gazebo Navigation Node
 Drives W102 through the planned right-side path in Gazebo using odometry feedback
 and a proportional angular+linear controller.
 
-Waypoints (feet → metres, 1 ft = 0.3048 m):
-  S  (0,    0)    ft  →  (0.000,  0.300) m  [start, slight offset from south wall]
-  R1 (2.8,  0)    ft  →  (0.853,  0.300) m  [centred in valid corridor 0.796–0.912 m]
-  R2 (2.8,  6)    ft  →  (0.853,  1.829) m
-  G  (0,   10)    ft  →  (0.000,  3.048) m  [John]
+Waypoints (metres, world frame):
+  S  →  (0.000,  0.300) m  [start, slight offset from south wall]
+  R1 →  (0.750,  0.300) m  [right of chair; safe east-wall clearance during turn]
+  R2 →  (0.750,  1.829) m
+  G  →  (0.000,  3.048) m  [John]
 
-  R1/R2 x chosen so the 0.813 m-wide robot body clears both constraints:
-    east wall inner face (1.524 m) — 14 cm margin at peak 45-deg rotation
-    chair right edge (0.25 m)      — 14 cm margin at worst early-declare stop
+  R1/R2 x = 0.75 m chosen so the 0.813 m-wide robot body clears both constraints:
+    east wall inner face (1.524 m) — 24 cm margin at peak 45-deg rotation
+      (0.813-wide side half-extent at 45° = 0.530 m; 1.524 - 0.75 - 0.530 = 0.244 m)
+    chair right edge (0.25 m)      —  9 cm margin (robot left edge at 0.344 m)
 
 Topics consumed:
   /odom  (nav_msgs/Odometry)  — provided by ros-gz bridge from Gazebo diff-drive plugin
@@ -38,9 +39,9 @@ from std_msgs.msg import String
 FT = 0.3048   # feet → metres
 
 WAYPOINTS = [
-    (2.8 * FT,  0 * FT + 0.3),   # R1 — 2.8 ft centres robot in valid corridor [0.796, 0.912] m
-    (2.8 * FT,  6 * FT),          # R2
-    (0   * FT, 10 * FT),          # G  = John
+    (0.75,      0.3),    # R1 — 0.75 m right of centre; 9 cm chair clearance, 24 cm wall clearance
+    (0.75,      6 * FT), # R2
+    (0   * FT, 10 * FT), # G  = John
 ]
 WAYPOINT_LABELS = ['R1', 'R2', 'G (John)']
 
