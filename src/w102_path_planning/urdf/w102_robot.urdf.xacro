@@ -13,16 +13,7 @@
   <material name="red">      <color rgba="0.8  0.2  0.0  1"/></material>
   <material name="black">    <color rgba="0.1  0.1  0.1  1"/></material>
 
-  <!-- ── base_footprint (virtual ground link) ─────────────────────────── -->
-  <link name="base_footprint"/>
-
-  <joint name="base_footprint_joint" type="fixed">
-    <parent link="base_footprint"/>
-    <child  link="base_link"/>
-    <origin xyz="0 0 0.12" rpy="0 0 0"/>
-  </joint>
-
-  <!-- ── base_link ────────────────────────────────────────────────────── -->
+  <!-- ── base_link (root link — OdometryPublisher in SDF provides odom→base_link) ── -->
   <link name="base_link">
     <visual>
       <geometry><box size="0.686 0.813 0.20"/></geometry>
