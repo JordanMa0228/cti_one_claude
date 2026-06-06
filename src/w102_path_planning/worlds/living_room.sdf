@@ -1,7 +1,8 @@
 <?xml version="1.0" ?>
 <!--
   Living room world for W102 path-planning simulation.
-  Room: 10 ft × 12 ft  →  3.048 m × 3.658 m
+  Room: 10 ft wide × ~14 ft deep  →  3.048 m × 4.308 m (Y extended south by 0.65 m)
+  South wall moved to y_inner = -0.65 m so robot half-diagonal (0.532 m) fits at S(0,0).
   Coordinate system: X = east, Y = north, Z = up
   Robot start: (0, 0) m  |  Chair: (0, 1.219) m  |  John: (0, 3.048) m
 -->
@@ -25,8 +26,8 @@
         <scene>scene</scene>
         <ambient_light>0.5 0.5 0.5</ambient_light>
         <background_color>0.55 0.73 0.87</background_color>
-        <!-- Top-down, centred on room (x=0, y=1.829 = room mid-Y), 9 m height -->
-        <camera_pose>0 1.829 9 0 1.5708 0</camera_pose>
+        <!-- Top-down, centred on enlarged room (x=0, y=1.504 = mid of [-0.65,3.658]), 10 m height -->
+        <camera_pose>0 1.504 10 0 1.5708 0</camera_pose>
         <camera_clip><near>0.1</near><far>100</far></camera_clip>
       </plugin>
 
@@ -109,7 +110,7 @@
     </light>
 
     <light type="point" name="room_lamp">
-      <pose>0 1.829 2.2 0 0 0</pose>
+      <pose>0 1.504 2.2 0 0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>
       <specular>0.1 0.1 0.1 1</specular>
       <attenuation>
@@ -122,13 +123,14 @@
     </light>
 
     <!-- ===== Floor ===== -->
+    <!-- y centre = (-0.65+3.658)/2 = 1.504; y size = 3.658+0.65 = 4.308 -->
     <model name="floor">
       <static>true</static>
-      <pose>0 1.829 0 0 0 0</pose>
+      <pose>0 1.504 0 0 0 0</pose>
       <link name="link">
         <collision name="col">
           <geometry>
-            <box><size>3.048 3.658 0.05</size></box>
+            <box><size>3.048 4.308 0.05</size></box>
           </geometry>
           <surface>
             <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
@@ -137,7 +139,7 @@
         <visual name="vis">
           <pose>0 0 -0.025 0 0 0</pose>
           <geometry>
-            <box><size>3.048 3.658 0.05</size></box>
+            <box><size>3.048 4.308 0.05</size></box>
           </geometry>
           <material>
             <ambient>0.76 0.60 0.42 1</ambient>
@@ -149,10 +151,10 @@
     </model>
 
     <!-- ===== Walls (thickness 0.12 m, height 2.5 m) ===== -->
-    <!-- South wall  y = -0.06 -->
+    <!-- South wall  inner face y = -0.65; centre y = -0.71 (moved south for S(0,0) rotation sweep) -->
     <model name="wall_south">
       <static>true</static>
-      <pose>0 -0.06 1.25 0 0 0</pose>
+      <pose>0 -0.71 1.25 0 0 0</pose>
       <link name="link">
         <collision name="col"><geometry><box><size>3.288 0.12 2.5</size></box></geometry></collision>
         <visual name="vis">
@@ -175,27 +177,27 @@
       </link>
     </model>
 
-    <!-- West wall  x = -1.584 -->
+    <!-- West wall  x = -1.584; y centre = (-0.71+3.718)/2 = 1.504; y size = 4.428 -->
     <model name="wall_west">
       <static>true</static>
-      <pose>-1.584 1.829 1.25 0 0 0</pose>
+      <pose>-1.584 1.504 1.25 0 0 0</pose>
       <link name="link">
-        <collision name="col"><geometry><box><size>0.12 3.898 2.5</size></box></geometry></collision>
+        <collision name="col"><geometry><box><size>0.12 4.428 2.5</size></box></geometry></collision>
         <visual name="vis">
-          <geometry><box><size>0.12 3.898 2.5</size></box></geometry>
+          <geometry><box><size>0.12 4.428 2.5</size></box></geometry>
           <material><ambient>0.88 0.86 0.80 1</ambient><diffuse>0.88 0.86 0.80 1</diffuse></material>
         </visual>
       </link>
     </model>
 
-    <!-- East wall  x = 1.584 -->
+    <!-- East wall  x = 1.584; y centre = 1.504; y size = 4.428 -->
     <model name="wall_east">
       <static>true</static>
-      <pose>1.584 1.829 1.25 0 0 0</pose>
+      <pose>1.584 1.504 1.25 0 0 0</pose>
       <link name="link">
-        <collision name="col"><geometry><box><size>0.12 3.898 2.5</size></box></geometry></collision>
+        <collision name="col"><geometry><box><size>0.12 4.428 2.5</size></box></geometry></collision>
         <visual name="vis">
-          <geometry><box><size>0.12 3.898 2.5</size></box></geometry>
+          <geometry><box><size>0.12 4.428 2.5</size></box></geometry>
           <material><ambient>0.88 0.86 0.80 1</ambient><diffuse>0.88 0.86 0.80 1</diffuse></material>
         </visual>
       </link>
@@ -334,7 +336,7 @@
       Initial pose:   (0, 0.3) m, facing +Y (yaw = π/2)
     -->
     <model name="w102">
-      <pose>0 0.3 0.12 0 0 1.5708</pose>
+      <pose>0 0 0.12 0 0 1.5708</pose>
 
       <!-- Base link -->
       <link name="base_link">

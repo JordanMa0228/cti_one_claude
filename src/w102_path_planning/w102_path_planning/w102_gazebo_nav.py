@@ -5,8 +5,8 @@ Drives W102 through the planned right-side path in Gazebo using odometry feedbac
 and a proportional angular+linear controller.
 
 Waypoints (metres, world frame):
-  S  →  (0.000,  0.300) m  [start, slight offset from south wall]
-  R1 →  (0.750,  0.300) m  [right of chair; safe east-wall clearance during turn]
+  S  →  (0.000,  0.000) m  [start — room enlarged south so full rotation sweep fits]
+  R1 →  (0.750,  0.000) m  [right of chair; safe east-wall clearance during turn]
   R2 →  (0.750,  1.829) m
   G  →  (0.000,  3.048) m  [John]
 
@@ -34,12 +34,12 @@ from std_msgs.msg import String
 
 # ---------------------------------------------------------------------------
 # Waypoints in metres  (world frame, matching the SDF)
-# Robot is spawned at (0, 0.3) facing +Y  (yaw = π/2)
+# Robot is spawned at (0, 0) facing +Y  (yaw = π/2)
 # ---------------------------------------------------------------------------
 FT = 0.3048   # feet → metres
 
 WAYPOINTS = [
-    (0.75,      0.3),    # R1 — 0.75 m right of centre; 9 cm chair clearance, 24 cm wall clearance
+    (0.75,      0.0),    # R1 — 0.75 m right of centre; 9 cm chair clearance, 24 cm wall clearance
     (0.75,      6 * FT), # R2
     (0   * FT, 10 * FT), # G  = John
 ]
@@ -74,7 +74,7 @@ class W102GazeboNav(Node):
 
         # State
         self.x = 0.0
-        self.y = 0.3
+        self.y = 0.0
         self.yaw = math.pi / 2   # facing +Y initially
         self.odom_received = False
         self.wp_idx = 0
