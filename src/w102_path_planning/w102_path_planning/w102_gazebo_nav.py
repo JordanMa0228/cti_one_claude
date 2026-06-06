@@ -1,21 +1,37 @@
 #!/usr/bin/env python3
 """
-W102 Gazebo Navigation Node
-Drives W102 through the planned right-side path in Gazebo using odometry feedback
-and an explicit ALIGNING / DRIVING state machine.
+W102 Gazebo Navigation Node — three-state controller (ALIGNING / BRAKING / DRIVING)
 
 Waypoints (metres, world frame):
-  S  →  (0.000,  0.000) m  [start — room enlarged south so full rotation sweep fits]
-  R1 →  (0.750,  0.000) m  [right of chair; 24 cm east-wall margin at 45-deg sweep]
+  S  →  (0.000,  0.000) m
+  R1 →  (0.750,  0.000) m
   R2 →  (0.750,  1.829) m
   G  →  (0.000,  3.048) m  [John]
 
-State machine per waypoint leg:
-  ALIGNING  — pure rotation only; heading must stay within ALIGN_THRESH for
-               ALIGN_HOLD_TICKS consecutive ticks before DRIVING is entered.
-               Any tick outside the threshold resets the hold counter to zero.
-  DRIVING   — forward + corrective angular; if heading error exceeds
-               REALIGN_THRESH the robot returns to ALIGNING immediately.
+Controller state machine (per waypoint leg):
+
+  ALIGNING  — pure angular only.
+               Transitions to BRAKING when |angle_err| < COARSE_THRESH (0.20 rad).
+               Hard timeout: after ALIGN_TIMEOUT_TICKS ticks without reaching
+               COARSE_THRESH (indicating a stall / wall contact during spin),
+               also enters BRAKING to break the spin and re-evaluate.
+
+  BRAKING   — zero velocity for BRAKE_TICKS ticks so angular inertia dissipates.
+               After brake:
+                 |angle_err| < FINE_THRESH (0.12 rad)  →  DRIVING
+                 otherwise                              →  ALIGNING (re-rotate)
+
+  DRIVING   — forward + corrective angular.
+               |angle_err| > REALIGN_THRESH (0.25 rad) →  ALIGNING
+
+Why previous fixes failed:
+  1. Single-tick threshold (original): transient threshold crossing triggered
+     premature forward motion → heading disturbed → oscillation.
+  2. Hold counter (previous fix): correct idea but if oscillation amplitude
+     exceeds ALIGN_THRESH the counter never saturates → robot spins indefinitely
+     → caster drag causes eastward drift → at x≈0.99 the east corner contacts
+     the east wall at 45° of rotation → physical stall at 45°.
+  The BRAKING state eliminates both problems by killing inertia before committing.
 
 Topics consumed:
   /odom  (nav_msgs/Odometry)
@@ -32,38 +48,48 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from std_msgs.msg import String
 
-
 # ---------------------------------------------------------------------------
-FT = 0.3048   # feet → metres
+FT = 0.3048
 
 WAYPOINTS = [
-    (0.75,      0.0),    # R1
-    (0.75,      6 * FT), # R2
-    (0   * FT, 10 * FT), # G  = John
+    (0.75,      0.0),
+    (0.75,      6 * FT),
+    (0   * FT, 10 * FT),
 ]
 WAYPOINT_LABELS = ['R1', 'R2', 'G (John)']
+
+# Controller states
+_ALIGNING = 'ALIGNING'
+_BRAKING  = 'BRAKING'
+_DRIVING  = 'DRIVING'
 
 
 class W102GazeboNav(Node):
 
-    # ---- Controller gains ------------------------------------------------
-    KP_ANG  = 0.8    # rad/s per rad of heading error
-    KP_LIN  = 0.6    # m/s per metre of remaining distance
-    MAX_LIN = 0.12   # m/s   top forward speed
-    MAX_ANG = 0.7    # rad/s top turn speed
+    # ---- Gains -----------------------------------------------------------
+    KP_ANG  = 0.8
+    KP_LIN  = 0.6
+    MAX_LIN = 0.12   # m/s
+    MAX_ANG = 0.6    # rad/s  (kept low to reduce angular momentum)
 
-    # ---- Arrival / alignment thresholds ----------------------------------
-    ARRIVE_DIST      = 0.15  # m   — consider waypoint reached
-    ALIGN_THRESH     = 0.08  # rad — heading must be inside this band …
-    ALIGN_HOLD_TICKS = 10    # … for this many consecutive ticks before DRIVING
-                             #   (10 × 0.05 s = 0.5 s of stable heading)
-    REALIGN_THRESH   = 0.20  # rad — heading error that forces return to ALIGNING
+    # ---- Arrival ---------------------------------------------------------
+    ARRIVE_DIST = 0.15   # m
 
-    # ---- Post-arrival settle / stuck recovery ----------------------------
-    SETTLE_TICKS  = 20   # zero-vel ticks after each waypoint  (20 × 0.05 s = 1.0 s)
-    STUCK_TICKS   = 80   # DRIVING ticks without STUCK_DIST progress → recovery
-    STUCK_DIST    = 0.03 # m  — minimum XY progress to reset stuck counter
-    RECOVER_TICKS = 12   # reverse ticks  (12 × 0.05 s = 0.6 s)
+    # ---- Alignment thresholds -------------------------------------------
+    COARSE_THRESH        = 0.20   # rad: ALIGNING → BRAKING
+    FINE_THRESH          = 0.12   # rad: after brake, enter DRIVING
+    REALIGN_THRESH       = 0.25   # rad: DRIVING → ALIGNING
+    ALIGN_TIMEOUT_TICKS  = 60     # ticks before forced brake (3 s at 20 Hz)
+                                  # prevents infinite spin / wall-contact drift
+
+    # ---- Braking --------------------------------------------------------
+    BRAKE_TICKS = 15   # zero-vel ticks (0.75 s at 20 Hz)
+
+    # ---- Post-arrival settle / stuck recovery ---------------------------
+    SETTLE_TICKS  = 20
+    STUCK_TICKS   = 80
+    STUCK_DIST    = 0.03
+    RECOVER_TICKS = 12
 
     def __init__(self):
         super().__init__('w102_gazebo_nav',
@@ -78,35 +104,35 @@ class W102GazeboNav(Node):
         self.odom_sub   = self.create_subscription(
             Odometry, '/odom', self._odom_cb, 10)
 
-        # Odometry state
+        # Odometry
         self.x   = 0.0
         self.y   = 0.0
         self.yaw = math.pi / 2
         self.odom_received = False
 
-        # Mission state
+        # Mission
         self.wp_idx       = 0
         self.mission_done = False
 
-        # --- Explicit alignment state ------------------------------------
-        # aligning=True  → ALIGNING state (pure rotation)
-        # aligning=False → DRIVING state  (forward + correction)
-        self.aligning        = True
-        self._align_hold_cnt = 0   # consecutive ticks inside ALIGN_THRESH
+        # Nav state machine
+        self._nav_state       = _ALIGNING
+        self._brake_cnt       = 0
+        self._align_tick_cnt  = 0   # ticks spent in current ALIGNING phase (timeout guard)
 
         # Post-arrival settle
         self._settle_cnt = 0
 
-        # Stuck detection (DRIVING state only)
+        # Stuck detection (DRIVING only)
         self._stuck_cnt  = 0
         self._ref_x      = 0.0
         self._ref_y      = 0.0
-
-        # Recovery
         self._recover_cnt = 0
 
+        # Debug logging throttle
+        self._dbg_cnt = 0
+
         self.timer = self.create_timer(0.05, self._control_loop)
-        self.get_logger().info('W102 Gazebo Nav started — waiting for first /odom …')
+        self.get_logger().info('W102 Nav started — waiting for /odom …')
 
     # ------------------------------------------------------------------
     def _odom_cb(self, msg: Odometry):
@@ -121,15 +147,22 @@ class W102GazeboNav(Node):
             self._ref_x = self.x
             self._ref_y = self.y
             self.get_logger().info(
-                f'/odom received — robot at ({self.x:.3f}, {self.y:.3f}), '
+                f'/odom received — ({self.x:.3f},{self.y:.3f}) '
                 f'yaw={math.degrees(self.yaw):.1f}°'
             )
 
     # ------------------------------------------------------------------
-    def _enter_aligning(self):
-        """Transition (back) into ALIGNING state and reset the hold counter."""
-        self.aligning        = True
-        self._align_hold_cnt = 0
+    def _set_state(self, new_state: str, reason: str = ''):
+        if self._nav_state != new_state:
+            self.get_logger().info(
+                f'  [{self._nav_state}→{new_state}] '
+                f'x={self.x:.3f} y={self.y:.3f} '
+                f'yaw={math.degrees(self.yaw):.1f}° '
+                f'wp{self.wp_idx}  {reason}'
+            )
+            self._nav_state = new_state
+            self._align_tick_cnt = 0
+            self._dbg_cnt = 0
 
     # ------------------------------------------------------------------
     def _control_loop(self):
@@ -142,7 +175,7 @@ class W102GazeboNav(Node):
             self._stop()
             return
 
-        # ---- 2. Stuck recovery: reverse briefly ------------------------
+        # ---- 2. Stuck recovery: reverse briefly -----------------------
         if self._recover_cnt > 0:
             self._recover_cnt -= 1
             cmd = Twist()
@@ -150,18 +183,18 @@ class W102GazeboNav(Node):
             self.cmd_pub.publish(cmd)
             if self._recover_cnt == 0:
                 self.get_logger().info('Recovery complete — re-aligning')
-                self._enter_aligning()
+                self._set_state(_ALIGNING, 'post-recovery')
                 self._stuck_cnt = 0
                 self._ref_x = self.x
                 self._ref_y = self.y
             return
 
-        # ---- 3. Mission complete check ---------------------------------
+        # ---- 3. Mission complete ---------------------------------------
         if self.wp_idx >= len(WAYPOINTS):
             self._stop()
             self.mission_done = True
-            self.get_logger().info('✓ W102 has reached John!  Mission complete.')
-            self._publish_status('Mission complete — W102 reached John.')
+            self.get_logger().info('✓ Mission complete — W102 reached John.')
+            self._publish_status('Mission complete.')
             return
 
         tx, ty = WAYPOINTS[self.wp_idx]
@@ -173,89 +206,104 @@ class W102GazeboNav(Node):
         if dist < self.ARRIVE_DIST:
             label = WAYPOINT_LABELS[self.wp_idx]
             self.get_logger().info(
-                f'  ✓ Waypoint {self.wp_idx + 1}/{len(WAYPOINTS)} reached: '
-                f'{label}  ({tx:.3f}, {ty:.3f})'
+                f'  ✓ wp{self.wp_idx+1} {label} reached  '
+                f'({self.x:.3f},{self.y:.3f})'
             )
-            self._publish_status(f'W102 reached {label} ({tx:.2f}, {ty:.2f}) m')
+            self._publish_status(f'W102 reached {label}')
             self._stop()
-            self.wp_idx     += 1
-            self._enter_aligning()          # always start next leg in ALIGNING
-            self._settle_cnt = self.SETTLE_TICKS
-            self._stuck_cnt  = 0
-            self._ref_x      = self.x
-            self._ref_y      = self.y
+            self.wp_idx      += 1
+            self._set_state(_ALIGNING, 'new waypoint')
+            self._settle_cnt  = self.SETTLE_TICKS
+            self._stuck_cnt   = 0
+            self._ref_x       = self.x
+            self._ref_y       = self.y
             return
 
-        # ---- 5. Heading error ------------------------------------------
         target_yaw = math.atan2(dy, dx)
         angle_err  = self._wrap(target_yaw - self.yaw)
 
-        # ---- 6. State-machine transition --------------------------------
-        #
-        #  ALIGNING → DRIVING:
-        #    |angle_err| < ALIGN_THRESH  for ALIGN_HOLD_TICKS consecutive ticks.
-        #    Any single tick outside the band resets the counter to zero.
-        #    This prevents a momentary threshold crossing (due to inertia / noise)
-        #    from prematurely unlocking forward motion.
-        #
-        #  DRIVING → ALIGNING:
-        #    |angle_err| > REALIGN_THRESH at any single tick.
-        #
-        if self.aligning:
-            if abs(angle_err) < self.ALIGN_THRESH:
-                self._align_hold_cnt += 1
-                if self._align_hold_cnt >= self.ALIGN_HOLD_TICKS:
-                    self.aligning        = False
-                    self._align_hold_cnt = 0
-                    self._stuck_cnt      = 0
-                    self._ref_x          = self.x
-                    self._ref_y          = self.y
-                    self.get_logger().info(
-                        f'  → DRIVING toward wp{self.wp_idx} '
-                        f'({tx:.2f},{ty:.2f})  yaw={math.degrees(self.yaw):.1f}°'
-                    )
-            else:
-                self._align_hold_cnt = 0   # out of band — restart the hold counter
-        else:
-            if abs(angle_err) > self.REALIGN_THRESH:
-                self._enter_aligning()
-                self.get_logger().info(
-                    f'  → ALIGNING (err={math.degrees(angle_err):.1f}°) '
-                    f'wp{self.wp_idx}'
-                )
+        # ---- 5. Debug logging (every 20 ticks = 1 sec) ----------------
+        self._dbg_cnt += 1
+        if self._dbg_cnt % 20 == 0:
+            self.get_logger().info(
+                f'  [DBG/{self._nav_state}] wp{self.wp_idx} '
+                f'pos=({self.x:.3f},{self.y:.3f}) '
+                f'yaw={math.degrees(self.yaw):.1f}° '
+                f'tgt={math.degrees(target_yaw):.1f}° '
+                f'err={math.degrees(angle_err):.1f}° '
+                f'dist={dist:.3f}'
+            )
 
-        # ---- 7. Stuck detection (DRIVING state only) -------------------
-        if not self.aligning:
-            moved = math.hypot(self.x - self._ref_x, self.y - self._ref_y)
-            if moved >= self.STUCK_DIST:
-                self._stuck_cnt = 0
-                self._ref_x = self.x
-                self._ref_y = self.y
-            else:
-                self._stuck_cnt += 1
-                if self._stuck_cnt >= self.STUCK_TICKS:
-                    self.get_logger().warn(
-                        f'Stuck at ({self.x:.3f},{self.y:.3f}) '
-                        f'targeting wp{self.wp_idx} — reversing'
-                    )
-                    self._recover_cnt = self.RECOVER_TICKS
-                    self._stuck_cnt   = 0
-                    return
-        else:
-            self._stuck_cnt = 0
-            self._ref_x = self.x
-            self._ref_y = self.y
-
-        # ---- 8. Velocity command ---------------------------------------
+        # ---- 6. State machine ------------------------------------------
         cmd = Twist()
-        if self.aligning:
-            cmd.angular.z = float(
-                max(-self.MAX_ANG, min(self.MAX_ANG, self.KP_ANG * angle_err)))
-        else:
-            cmd.linear.x  = float(min(self.MAX_LIN, self.KP_LIN * dist))
-            cmd.angular.z = float(
-                max(-self.MAX_ANG * 0.5,
-                    min(self.MAX_ANG * 0.5, self.KP_ANG * angle_err)))
+
+        if self._nav_state == _ALIGNING:
+            self._align_tick_cnt += 1
+
+            if abs(angle_err) < self.COARSE_THRESH:
+                # Close enough — stop spinning so inertia can die
+                self._set_state(_BRAKING,
+                    f'err={math.degrees(angle_err):.1f}° < {math.degrees(self.COARSE_THRESH):.0f}°')
+                self._brake_cnt = self.BRAKE_TICKS
+                # fall through to BRAKING this tick (zero cmd)
+
+            elif self._align_tick_cnt >= self.ALIGN_TIMEOUT_TICKS:
+                # Spinning too long without reaching COARSE_THRESH.
+                # Likely stalled against wall or persistent oscillation.
+                # Force a brake to let physics settle, then re-evaluate.
+                self._set_state(_BRAKING,
+                    f'timeout after {self._align_tick_cnt} ticks '
+                    f'err={math.degrees(angle_err):.1f}°')
+                self._brake_cnt = self.BRAKE_TICKS
+                # zero cmd this tick
+
+            else:
+                cmd.angular.z = float(
+                    max(-self.MAX_ANG,
+                        min(self.MAX_ANG, self.KP_ANG * angle_err)))
+
+        if self._nav_state == _BRAKING:
+            # Zero velocity — let inertia die
+            self._brake_cnt -= 1
+            if self._brake_cnt <= 0:
+                if abs(angle_err) < self.FINE_THRESH:
+                    self._set_state(_DRIVING,
+                        f'err={math.degrees(angle_err):.1f}° after brake')
+                    self._stuck_cnt = 0
+                    self._ref_x = self.x
+                    self._ref_y = self.y
+                else:
+                    self._set_state(_ALIGNING,
+                        f'err={math.degrees(angle_err):.1f}° still too large — re-rotate')
+            # cmd stays zero
+
+        elif self._nav_state == _DRIVING:
+            if abs(angle_err) > self.REALIGN_THRESH:
+                self._set_state(_ALIGNING,
+                    f'err={math.degrees(angle_err):.1f}° > {math.degrees(self.REALIGN_THRESH):.0f}°')
+                cmd.angular.z = float(
+                    max(-self.MAX_ANG,
+                        min(self.MAX_ANG, self.KP_ANG * angle_err)))
+            else:
+                cmd.linear.x  = float(min(self.MAX_LIN, self.KP_LIN * dist))
+                cmd.angular.z = float(
+                    max(-self.MAX_ANG * 0.5,
+                        min(self.MAX_ANG * 0.5, self.KP_ANG * angle_err)))
+
+                # ---- Stuck detection (DRIVING only) --------------------
+                moved = math.hypot(self.x - self._ref_x, self.y - self._ref_y)
+                if moved >= self.STUCK_DIST:
+                    self._stuck_cnt = 0
+                    self._ref_x = self.x
+                    self._ref_y = self.y
+                else:
+                    self._stuck_cnt += 1
+                    if self._stuck_cnt >= self.STUCK_TICKS:
+                        self.get_logger().warn(
+                            f'Stuck at ({self.x:.3f},{self.y:.3f}) — reversing')
+                        self._recover_cnt = self.RECOVER_TICKS
+                        self._stuck_cnt   = 0
+                        return
 
         self.cmd_pub.publish(cmd)
 
@@ -270,11 +318,8 @@ class W102GazeboNav(Node):
 
     @staticmethod
     def _wrap(angle: float) -> float:
-        """Wrap angle to [-π, π]."""
-        while angle >  math.pi:
-            angle -= 2 * math.pi
-        while angle < -math.pi:
-            angle += 2 * math.pi
+        while angle >  math.pi: angle -= 2 * math.pi
+        while angle < -math.pi: angle += 2 * math.pi
         return angle
 
 
