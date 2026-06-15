@@ -139,12 +139,22 @@ class W102GazeboNav(Node):
         # Debug logging throttle
         self._dbg_cnt = 0
 
+        # ---- Open-loop test mode (set param open_loop_test:=true to enable) ----
+        self.declare_parameter('open_loop_test', False)
+        self._open_loop_test = self.get_parameter('open_loop_test').value
+        self._open_loop_ticks = 0          # counts ticks while test is running
+        self._OPEN_LOOP_TICKS = 60         # 3 s at 20 Hz
+
         self.timer = self.create_timer(0.05, self._control_loop)
         self.get_logger().info('W102 Nav started — waiting for /odom …')
         self.get_logger().info(
             '[NAV_CFG] expected spawn=(0.000,0.000) yaw=0.0deg   '
             f'waypoints={WAYPOINTS}'
         )
+        if self._open_loop_test:
+            self.get_logger().warn(
+                '[OPEN_LOOP_TEST] mode ENABLED — will drive linear.x=0.08 for 3 s then stop'
+            )
 
     # ------------------------------------------------------------------
     def _odom_cb(self, msg: Odometry):
@@ -158,12 +168,27 @@ class W102GazeboNav(Node):
             self.odom_received = True
             self._ref_x = self.x
             self._ref_y = self.y
+
+            hx = math.cos(self.yaw)
+            hy = math.sin(self.yaw)
+            tx0, ty0 = WAYPOINTS[0]
+            init_target_yaw = math.atan2(ty0 - self.y, tx0 - self.x)
+            init_angle_err  = self._wrap(init_target_yaw - self.yaw)
+
             self.get_logger().info(
                 f'[WAYPOINT_CFG] active waypoints={WAYPOINTS}'
             )
             self.get_logger().info(
                 f'[ODOM_INIT] first odom: pos=({self.x:.3f},{self.y:.3f}) '
-                f'yaw={math.degrees(self.yaw):.1f}°'
+                f'yaw={math.degrees(self.yaw):.1f}°  '
+                f'first_wp=({tx0},{ty0})  '
+                f'target_yaw={math.degrees(init_target_yaw):.1f}°  '
+                f'angle_err={math.degrees(init_angle_err):.1f}°'
+            )
+            self.get_logger().info(
+                f'[HEADING_CHECK] yaw={math.degrees(self.yaw):.1f}°  '
+                f'heading=({hx:.3f}, {hy:.3f})  '
+                f'(+X=east if hx≈1,hy≈0 at yaw=0)'
             )
 
     # ------------------------------------------------------------------
@@ -181,7 +206,33 @@ class W102GazeboNav(Node):
 
     # ------------------------------------------------------------------
     def _control_loop(self):
-        if self.mission_done or not self.odom_received:
+        if not self.odom_received:
+            return
+
+        # ---- 0. Open-loop test mode ------------------------------------
+        if self._open_loop_test:
+            if self._open_loop_ticks < self._OPEN_LOOP_TICKS:
+                self._open_loop_ticks += 1
+                cmd = Twist()
+                cmd.linear.x  = 0.08
+                cmd.angular.z = 0.0
+                self.get_logger().info(
+                    f'[OPEN_LOOP_TEST] tick={self._open_loop_ticks}/{self._OPEN_LOOP_TICKS} '
+                    f'pos=({self.x:.3f},{self.y:.3f}) yaw={math.degrees(self.yaw):.1f}°  '
+                    f'publishing linear.x=0.08 angular.z=0.0'
+                )
+                self.cmd_pub.publish(cmd)
+            else:
+                if self._open_loop_ticks == self._OPEN_LOOP_TICKS:
+                    self._open_loop_ticks += 1   # advance past boundary so we log once
+                    self.get_logger().warn(
+                        f'[OPEN_LOOP_TEST] DONE  final pos=({self.x:.3f},{self.y:.3f}) '
+                        f'yaw={math.degrees(self.yaw):.1f}°  — check which axis moved'
+                    )
+                self._stop()
+            return
+
+        if self.mission_done:
             return
 
         # ---- 1. Post-arrival settle ------------------------------------
@@ -237,19 +288,7 @@ class W102GazeboNav(Node):
         target_yaw = math.atan2(dy, dx)
         angle_err  = self._wrap(target_yaw - self.yaw)
 
-        # ---- 5. Debug logging (every 20 ticks = 1 sec) ----------------
-        self._dbg_cnt += 1
-        if self._dbg_cnt % 10 == 0:
-            self.get_logger().info(
-                f'  [DBG/{self._nav_state}] wp{self.wp_idx} '
-                f'pos=({self.x:.3f},{self.y:.3f}) '
-                f'yaw={math.degrees(self.yaw):.1f}° '
-                f'tgt={math.degrees(target_yaw):.1f}° '
-                f'err={math.degrees(angle_err):.1f}° '
-                f'dist={dist:.3f}'
-            )
-
-        # ---- 6. State machine ------------------------------------------
+        # ---- 6. State machine (compute cmd first so debug can log it) --
         cmd = Twist()
 
         if self._nav_state == _ALIGNING:
@@ -326,6 +365,20 @@ class W102GazeboNav(Node):
                         self._recover_cnt = self.RECOVER_TICKS
                         self._stuck_cnt   = 0
                         return
+
+        # ---- 5. Debug log (every 10 ticks ≈ 0.5 s) — after cmd is known --
+        self._dbg_cnt += 1
+        if self._dbg_cnt % 10 == 0:
+            self.get_logger().info(
+                f'  [DBG/{self._nav_state}] wp{self.wp_idx}({WAYPOINT_LABELS[self.wp_idx] if self.wp_idx < len(WAYPOINT_LABELS) else "?"}) '
+                f'tgt=({tx:.3f},{ty:.3f}) '
+                f'pos=({self.x:.3f},{self.y:.3f}) '
+                f'yaw={math.degrees(self.yaw):.1f}° '
+                f'tgt_yaw={math.degrees(target_yaw):.1f}° '
+                f'err={math.degrees(angle_err):.1f}° '
+                f'dist={dist:.3f} '
+                f'cmd=(lin={cmd.linear.x:.3f} ang={cmd.angular.z:.3f})'
+            )
 
         self.cmd_pub.publish(cmd)
 
