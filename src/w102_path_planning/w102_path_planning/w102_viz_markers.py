@@ -39,8 +39,8 @@ JOHN    = (0.0, 10 * FT)
 
 NODES = {
     'S':  (0.0,         0.0),
-    'R1': ( 3 * FT,     0.0),
-    'R2': ( 3 * FT,  6 * FT),
+    'R1': (0.75,        0.0),
+    'R2': (0.75,     6 * FT),
     'G':  (0.0,     10 * FT),
     'L1': (-3 * FT,    0.0),
     'L2': (-3 * FT, 6 * FT),
@@ -121,9 +121,9 @@ class W102VizMarkers(Node):
         # ── Floor (thin flat box, light wood colour) ─────────────────────
         fl = base('room', Marker.CUBE)
         fl.pose.position.x = 0.0
-        fl.pose.position.y = ROOM_H / 2
+        fl.pose.position.y = 1.504   # (−0.65+3.658)/2 = Gazebo room centre
         fl.pose.position.z = -0.01
-        fl.scale.x, fl.scale.y, fl.scale.z = ROOM_W, ROOM_H, 0.01
+        fl.scale.x, fl.scale.y, fl.scale.z = ROOM_W, 4.308, 0.01
         fl.color = _color(0.76, 0.60, 0.42, 0.6)
         add(fl)
 
@@ -131,10 +131,10 @@ class W102VizMarkers(Node):
         wall_h = 0.4   # visible height in RViz
         walls = [
             # (cx, cy, sx, sy) — all float so geometry_msgs C extension is happy
-            (0.0,        0.0,        ROOM_W, 0.04),   # south
-            (0.0,        ROOM_H,     ROOM_W, 0.04),   # north
-            (-ROOM_W/2,  ROOM_H/2,   0.04,  ROOM_H), # west
-            ( ROOM_W/2,  ROOM_H/2,   0.04,  ROOM_H), # east
+            (0.0,       -0.65,        ROOM_W, 0.04),   # south  y=-0.65
+            (0.0,        3.658,       ROOM_W, 0.04),   # north  y=3.658
+            (-ROOM_W/2,  1.504,       0.04,  4.308),   # west
+            ( ROOM_W/2,  1.504,       0.04,  4.308),   # east
         ]
         for (cx, cy, sx, sy) in walls:
             w = base('room', Marker.CUBE)
