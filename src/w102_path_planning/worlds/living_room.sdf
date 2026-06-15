@@ -333,7 +333,7 @@
       Base footprint: 0.686 m × 0.813 m (27 in × 32 in)
       Drive wheels:   radius 0.10 m, separation 0.54 m
       Caster wheel:   radius 0.05 m at front
-      Initial pose:   (0, 0.3) m, facing +Y (yaw = π/2)
+      Initial pose:   (0, 0.0) m, facing +Y (yaw = π/2)
     -->
     <model name="w102">
       <pose>0 0 0.12 0 0 1.5708</pose>

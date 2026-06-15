@@ -141,6 +141,10 @@ class W102GazeboNav(Node):
 
         self.timer = self.create_timer(0.05, self._control_loop)
         self.get_logger().info('W102 Nav started — waiting for /odom …')
+        self.get_logger().info(
+            '[NAV_CFG] expected spawn=(0.000,0.000) yaw=90.0deg  '
+            f'waypoints={WAYPOINTS}'
+        )
 
     # ------------------------------------------------------------------
     def _odom_cb(self, msg: Odometry):
@@ -154,6 +158,9 @@ class W102GazeboNav(Node):
             self.odom_received = True
             self._ref_x = self.x
             self._ref_y = self.y
+            self.get_logger().info(
+                f'[WAYPOINT_CFG] active waypoints={WAYPOINTS}'
+            )
             self.get_logger().info(
                 f'[ODOM_INIT] first odom: pos=({self.x:.3f},{self.y:.3f}) '
                 f'yaw={math.degrees(self.yaw):.1f}°'
