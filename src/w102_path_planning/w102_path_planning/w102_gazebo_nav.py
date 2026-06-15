@@ -142,7 +142,7 @@ class W102GazeboNav(Node):
         self.timer = self.create_timer(0.05, self._control_loop)
         self.get_logger().info('W102 Nav started — waiting for /odom …')
         self.get_logger().info(
-            '[NAV_CFG] expected spawn=(0.000,0.000) yaw=90.0deg  '
+            '[NAV_CFG] expected spawn=(0.000,0.000) yaw=0.0deg   '
             f'waypoints={WAYPOINTS}'
         )
 

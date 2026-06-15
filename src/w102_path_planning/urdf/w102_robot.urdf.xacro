@@ -40,14 +40,14 @@
   <!-- Orange front bumper stripe -->
   <link name="bumper_link">
     <visual>
-      <geometry><box size="0.686 0.02 0.08"/></geometry>
+      <geometry><box size="0.02 0.686 0.08"/></geometry>
       <material name="orange"/>
     </visual>
   </link>
   <joint name="bumper_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="bumper_link"/>
-    <origin xyz="0 0.41 -0.05" rpy="0 0 0"/>
+    <origin xyz="0.41 0 -0.05" rpy="0 0 0"/>
   </joint>
 
   <!-- Sensor tower (red cylinder on top) -->
@@ -60,7 +60,7 @@
   <joint name="sensor_tower_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="sensor_tower"/>
-    <origin xyz="0 0.1 0.18" rpy="0 0 0"/>
+    <origin xyz="0.1 0 0.18" rpy="0 0 0"/>
   </joint>
 
   <!-- ── Left drive wheel ─────────────────────────────────────────────── -->
