@@ -25,11 +25,11 @@
   <!-- ── base_link ────────────────────────────────────────────────────── -->
   <link name="base_link">
     <visual>
-      <geometry><box size="0.686 0.813 0.20"/></geometry>
+      <geometry><box size="0.813 0.686 0.20"/></geometry>
       <material name="dark_grey"/>
     </visual>
     <collision>
-      <geometry><box size="0.686 0.813 0.20"/></geometry>
+      <geometry><box size="0.813 0.686 0.20"/></geometry>
     </collision>
     <inertial>
       <mass value="15.0"/>
@@ -40,14 +40,14 @@
   <!-- Orange front bumper stripe -->
   <link name="bumper_link">
     <visual>
-      <geometry><box size="0.686 0.02 0.08"/></geometry>
+      <geometry><box size="0.02 0.686 0.08"/></geometry>
       <material name="orange"/>
     </visual>
   </link>
   <joint name="bumper_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="bumper_link"/>
-    <origin xyz="0 0.41 -0.05" rpy="0 0 0"/>
+    <origin xyz="0.41 0 -0.05" rpy="0 0 0"/>
   </joint>
 
   <!-- Sensor tower (red cylinder on top) -->
@@ -60,7 +60,7 @@
   <joint name="sensor_tower_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="sensor_tower"/>
-    <origin xyz="0 0.1 0.18" rpy="0 0 0"/>
+    <origin xyz="0.1 0 0.18" rpy="0 0 0"/>
   </joint>
 
   <!-- ── Left drive wheel ─────────────────────────────────────────────── -->
@@ -82,8 +82,8 @@
   <joint name="left_wheel_joint" type="continuous">
     <parent link="base_link"/>
     <child  link="left_wheel"/>
-    <origin xyz="-0.27 0 -0.02" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <origin xyz="0 0.27 -0.02" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
   </joint>
 
   <!-- ── Right drive wheel ────────────────────────────────────────────── -->
@@ -105,8 +105,8 @@
   <joint name="right_wheel_joint" type="continuous">
     <parent link="base_link"/>
     <child  link="right_wheel"/>
-    <origin xyz="0.27 0 -0.02" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <origin xyz="0 -0.27 -0.02" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
   </joint>
 
   <!-- ── Front caster ──────────────────────────────────────────────────── -->
@@ -126,7 +126,7 @@
   <joint name="caster_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="caster_wheel"/>
-    <origin xyz="0 0.36 -0.07" rpy="0 0 0"/>
+    <origin xyz="0.36 0 -0.07" rpy="0 0 0"/>
   </joint>
 
   <!-- ── Rear caster ───────────────────────────────────────────────────── -->
@@ -143,7 +143,7 @@
   <joint name="caster_rear_joint" type="fixed">
     <parent link="base_link"/>
     <child  link="caster_rear"/>
-    <origin xyz="0 -0.36 -0.07" rpy="0 0 0"/>
+    <origin xyz="-0.36 0 -0.07" rpy="0 0 0"/>
   </joint>
 
 </robot>
