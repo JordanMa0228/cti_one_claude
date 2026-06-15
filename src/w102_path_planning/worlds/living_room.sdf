@@ -336,7 +336,7 @@
       Initial pose:   (0, 0.0) m, facing +X (yaw = 0)
     -->
     <model name="w102">
-      <pose>0 0 0.12 0 0 0</pose>
+      <pose>0 0 0.12 0 0 1.5708</pose>
 
       <!-- Base link -->
       <link name="base_link">
@@ -349,10 +349,10 @@
           </inertia>
         </inertial>
         <collision name="base_col">
-          <geometry><box><size>0.813 0.686 0.20</size></box></geometry>
+          <geometry><box><size>0.686 0.813 0.20</size></box></geometry>
         </collision>
         <visual name="base_vis">
-          <geometry><box><size>0.813 0.686 0.20</size></box></geometry>
+          <geometry><box><size>0.686 0.813 0.20</size></box></geometry>
           <material>
             <ambient>0.15 0.15 0.15 1</ambient>
             <diffuse>0.15 0.15 0.15 1</diffuse>
@@ -361,21 +361,21 @@
         </visual>
         <!-- Sensor tower -->
         <visual name="tower_vis">
-          <pose>0.1 0 0.18 0 0 0</pose>
+          <pose>0 0.1 0.18 0 0 0</pose>
           <geometry><cylinder><radius>0.06</radius><length>0.16</length></cylinder></geometry>
           <material><ambient>0.8 0.2 0.0 1</ambient><diffuse>0.8 0.2 0.0 1</diffuse></material>
         </visual>
         <!-- Front bumper stripe -->
         <visual name="bumper_vis">
-          <pose>0.41 0 -0.05 0 0 0</pose>
-          <geometry><box><size>0.02 0.686 0.08</size></box></geometry>
+          <pose>0 0.41 -0.05 0 0 0</pose>
+          <geometry><box><size>0.686 0.02 0.08</size></box></geometry>
           <material><ambient>1.0 0.5 0.0 1</ambient><diffuse>1.0 0.5 0.0 1</diffuse></material>
         </visual>
       </link>
 
       <!-- Left drive wheel -->
       <link name="left_wheel">
-        <pose>0 0.27 -0.02 1.5708 0 0</pose>
+        <pose>-0.27 0 -0.02 1.5708 0 0</pose>
         <inertial>
           <mass>1.5</mass>
           <inertia><ixx>0.0045</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.0045</iyy><iyz>0</iyz><izz>0.0075</izz></inertia>
@@ -393,12 +393,12 @@
       <joint name="left_wheel_joint" type="revolute">
         <parent>base_link</parent>
         <child>left_wheel</child>
-        <axis><xyz>0 1 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+        <axis><xyz>1 0 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
       </joint>
 
       <!-- Right drive wheel -->
       <link name="right_wheel">
-        <pose>0 -0.27 -0.02 1.5708 0 0</pose>
+        <pose>0.27 0 -0.02 1.5708 0 0</pose>
         <inertial>
           <mass>1.5</mass>
           <inertia><ixx>0.0045</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.0045</iyy><iyz>0</iyz><izz>0.0075</izz></inertia>
@@ -416,12 +416,12 @@
       <joint name="right_wheel_joint" type="revolute">
         <parent>base_link</parent>
         <child>right_wheel</child>
-        <axis><xyz>0 1 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+        <axis><xyz>1 0 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
       </joint>
 
       <!-- Front caster wheel -->
       <link name="caster_wheel">
-        <pose>0.36 0 -0.07 0 0 0</pose>
+        <pose>0 0.36 -0.07 0 0 0</pose>
         <inertial>
           <mass>0.3</mass>
           <inertia><ixx>0.0003</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.0003</iyy><iyz>0</iyz><izz>0.0003</izz></inertia>
@@ -443,7 +443,7 @@
 
       <!-- Rear caster wheel -->
       <link name="caster_rear">
-        <pose>-0.36 0 -0.07 0 0 0</pose>
+        <pose>0 -0.36 -0.07 0 0 0</pose>
         <inertial>
           <mass>0.3</mass>
           <inertia><ixx>0.0003</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.0003</iyy><iyz>0</iyz><izz>0.0003</izz></inertia>
