@@ -33,7 +33,7 @@ FT = 0.3048   # feet → metres
 # ── World constants (metres) ─────────────────────────────────────────────────
 ROOM_W  = 10 * FT      # 3.048 m  east–west
 ROOM_H  = 12 * FT      # 3.658 m  north–south
-CHAIR   = (0.0, 4 * FT)
+CHAIR   = (0.0, 1.219)   # matches Gazebo chair pose
 SAFETY  = 1.75 * FT    # 0.533 m
 JOHN    = (0.0, 10 * FT)
 

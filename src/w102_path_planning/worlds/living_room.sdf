@@ -4,7 +4,7 @@
   Room: 10 ft wide × ~14 ft deep  →  3.048 m × 4.308 m (Y extended south by 0.65 m)
   South wall moved to y_inner = -0.65 m so robot half-diagonal (0.532 m) fits at S(0,0).
   Coordinate system: X = east, Y = north, Z = up
-  Robot start: (0, 0) m  |  Chair: (0, 1.219) m  |  John: (0, 3.048) m  |  Chair: (0, 1.219) m  |  John: (0, 3.048) m
+  Robot start: (0, 0) m, facing +X (yaw = 0)  |  Chair: (0, 1.219) m  |  John: (0, 3.048) m
 -->
 <sdf version="1.9">
   <world name="living_room">
@@ -333,10 +333,10 @@
       Base footprint: 0.686 m × 0.813 m (27 in × 32 in)
       Drive wheels:   radius 0.10 m, separation 0.54 m
       Caster wheel:   radius 0.05 m at front
-      Initial pose:   (0, 0.0) m, yaw=π/2 (robot drive direction = world +X)
+      Initial pose:   (0, 0.0) m, facing +X (yaw = 0)
     -->
     <model name="w102">
-      <pose>0 0 0.12 0 0 1.5708</pose>
+      <pose>0 0 0.12 0 0 0</pose>
 
       <!-- Base link -->
       <link name="base_link">
