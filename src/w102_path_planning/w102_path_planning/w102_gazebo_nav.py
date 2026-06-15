@@ -22,7 +22,7 @@ Controller state machine (per waypoint leg):
                  otherwise                              →  ALIGNING (re-rotate)
 
   DRIVING   — forward + corrective angular.
-               |angle_err| > REALIGN_THRESH (0.25 rad) →  ALIGNING
+               |angle_err| > REALIGN_THRESH (0.45 rad) →  ALIGNING
 
 Why previous fixes failed:
   1. Single-tick threshold (original): transient threshold crossing triggered
@@ -87,8 +87,8 @@ class W102GazeboNav(Node):
     #       (robot cannot rotate during zero-velocity braking), creating the
     #       ALIGNING ↔ BRAKING trap seen in the debug logs.
     COARSE_THRESH        = 0.20   # rad (11.5°): ALIGNING → BRAKING
-    REALIGN_THRESH       = 0.30   # rad (17.2°): DRIVING  → ALIGNING
-    ALIGN_TIMEOUT_TICKS  = 60     # ticks before forced brake (3 s at 20 Hz)
+    REALIGN_THRESH       = 0.45   # rad (25.8 deg): BRAKING->DRIVING gate; DRIVING->ALIGNING trigger
+    ALIGN_TIMEOUT_TICKS  = 100    # ticks (5 s at 20 Hz): 90-deg turn needs ~60 ideal; +67% physics margin
 
     # ---- Braking --------------------------------------------------------
     BRAKE_TICKS = 15   # zero-vel ticks (0.75 s at 20 Hz)
@@ -155,7 +155,7 @@ class W102GazeboNav(Node):
             self._ref_x = self.x
             self._ref_y = self.y
             self.get_logger().info(
-                f'/odom received — ({self.x:.3f},{self.y:.3f}) '
+                f'[ODOM_INIT] first odom: pos=({self.x:.3f},{self.y:.3f}) '
                 f'yaw={math.degrees(self.yaw):.1f}°'
             )
 
@@ -190,7 +190,7 @@ class W102GazeboNav(Node):
             cmd.linear.x = -0.06
             self.cmd_pub.publish(cmd)
             if self._recover_cnt == 0:
-                self.get_logger().info('Recovery complete — re-aligning')
+                self.get_logger().info('[RECOVERY] complete -- re-aligning')
                 self._set_state(_ALIGNING, 'post-recovery')
                 self._stuck_cnt = 0
                 self._ref_x = self.x
@@ -214,7 +214,7 @@ class W102GazeboNav(Node):
         if dist < self.ARRIVE_DIST:
             label = WAYPOINT_LABELS[self.wp_idx]
             self.get_logger().info(
-                f'  ✓ wp{self.wp_idx+1} {label} reached  '
+                f'[WAYPOINT] wp{self.wp_idx+1} {label} reached pos=(
                 f'({self.x:.3f},{self.y:.3f})'
             )
             self._publish_status(f'W102 reached {label}')
@@ -232,7 +232,7 @@ class W102GazeboNav(Node):
 
         # ---- 5. Debug logging (every 20 ticks = 1 sec) ----------------
         self._dbg_cnt += 1
-        if self._dbg_cnt % 20 == 0:
+        if self._dbg_cnt % 10 == 0:
             self.get_logger().info(
                 f'  [DBG/{self._nav_state}] wp{self.wp_idx} '
                 f'pos=({self.x:.3f},{self.y:.3f}) '
@@ -315,7 +315,7 @@ class W102GazeboNav(Node):
                     self._stuck_cnt += 1
                     if self._stuck_cnt >= self.STUCK_TICKS:
                         self.get_logger().warn(
-                            f'Stuck at ({self.x:.3f},{self.y:.3f}) — reversing')
+                            f'[STUCK] pos=({self.x:.3f},{self.y:.3f}) yaw={math.degrees(self.yaw):.1f}deg -- reversing')
                         self._recover_cnt = self.RECOVER_TICKS
                         self._stuck_cnt   = 0
                         return
