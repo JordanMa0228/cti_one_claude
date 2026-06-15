@@ -214,8 +214,8 @@ class W102GazeboNav(Node):
         if dist < self.ARRIVE_DIST:
             label = WAYPOINT_LABELS[self.wp_idx]
             self.get_logger().info(
-                f'[WAYPOINT] wp{self.wp_idx+1} {label} reached pos=(
-                f'({self.x:.3f},{self.y:.3f})'
+                f'[WAYPOINT] wp{self.wp_idx+1} {label} reached '
+                f'pos=({self.x:.3f},{self.y:.3f}) yaw={math.degrees(self.yaw):.1f}deg'
             )
             self._publish_status(f'W102 reached {label}')
             self._stop()
