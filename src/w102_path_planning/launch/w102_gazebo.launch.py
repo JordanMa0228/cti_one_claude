@@ -59,10 +59,7 @@ def generate_launch_description():
 
     rviz_on = LaunchConfiguration('rviz')
 
-    # ── 1. Gazebo Sim — starts PAUSED so user can orient camera then press Play ─
-    # Remove -r so simulation is paused on open.  Press the ▶ Play button in
-    # the Gazebo window to start the physics.  The nav node waits for /odom
-    # (only published once running) so the robot will not move until Play.
+    # ── 1. Gazebo Sim — starts running immediately (-r flag) ─────────────────
     gz_server = ExecuteProcess(
         cmd=['gz', 'sim', '-r', world_file],
         output='screen',
