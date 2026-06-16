@@ -1,56 +1,46 @@
 #!/usr/bin/env python3
 """
-W102 Gazebo Navigation Node  —  Reference-Inspired Adaptive Controller
-=======================================================================
+W102 Gazebo Navigation Node — three-state controller (ALIGNING / BRAKING / DRIVING)
 
-Control design — adapted from ~/ros2_ws (Ubuntu-22.04) patterns:
+Waypoints (metres, world frame):
+  S  →  (0.000,  0.000) m
+  R1 →  (0.750,  0.000) m
+  R2 →  (0.750,  1.829) m
+  G  →  (0.000,  3.048) m  [John]
 
-1. Coordinated vx-wz coupling  [from gimbal_tracking_controller.base_control_loop]
-   -----------------------------------------------------------------------
-   Instead of "rotate to align, then drive", vx and wz are published simultaneously
-   every cycle.  Forward speed is scaled by cos(K_YAW_VX * heading_error):
-     · heading_error = 0  → yaw_scale = 1.0  → full forward speed
-     · heading_error = π/2 → yaw_scale ≈ 0   → nearly stopped, pure rotation
-   This gives smooth, continuous behaviour and naturally prevents the robot from
-   driving sideways into a wall while correcting its heading.
+Controller state machine (per waypoint leg):
 
-2. IIR low-pass filter on vx  [from base_control_loop, alpha = ALPHA]
-   -----------------------------------------------------------------------
-   Raw desired vx is smoothed before the slew limiter:
-     vx_filt = (1 - ALPHA) * vx_filt + ALPHA * vx_raw
-   This suppresses high-frequency jumps caused by heading-error noise.
+  ALIGNING  — pure angular only.
+               Transitions to BRAKING when |angle_err| < COARSE_THRESH (0.20 rad).
+               Hard timeout: after ALIGN_TIMEOUT_TICKS ticks without reaching
+               COARSE_THRESH (indicating a stall / wall contact during spin),
+               also enters BRAKING to break the spin and re-evaluate.
 
-3. Slew-rate limiter on both vx and wz  [from cmd_safe_vel, ax_max / awz_max]
-   -----------------------------------------------------------------------
-   The actual output ramps toward the filtered desired command at a fixed
-   acceleration cap each timer tick:
-     dv = clamp(target - out, -a_max*dt, a_max*dt)
-     out += dv
-   Prevents the physics engine from receiving discontinuous velocity steps,
-   which was the root cause of the robot being pushed into walls on sharp turns.
+  BRAKING   — zero velocity for BRAKE_TICKS ticks so angular inertia dissipates.
+               After brake:
+                 |angle_err| < FINE_THRESH (0.12 rad)  →  DRIVING
+                 otherwise                              →  ALIGNING (re-rotate)
 
-4. Wall proximity speed reduction  [inspired by cmd_safe_vel._compute_avoidance]
-   -----------------------------------------------------------------------
-   If the robot centre is within WALL_DANGER of any wall inner face, vx_des
-   is linearly scaled to zero at the face.  This acts before the IIR/slew
-   chain, so the deceleration itself is also slew-limited (no sudden stop).
+  DRIVING   — forward + corrective angular.
+               |angle_err| > REALIGN_THRESH (0.45 rad) →  ALIGNING
 
-5. Stuck detection + recovery state machine  [retained from previous design]
-   -----------------------------------------------------------------------
-   If distance to the current waypoint does not improve by STUCK_DIST within
-   STUCK_TIMEOUT seconds → RECOVER_REVERSE → RECOVER_ROTATE → NAVIGATE.
+Why previous fixes failed:
+  1. Single-tick threshold (original): transient threshold crossing triggered
+     premature forward motion → heading disturbed → oscillation.
+  2. Hold counter (previous fix): correct idea but if oscillation amplitude
+     exceeds ALIGN_THRESH the counter never saturates → robot spins indefinitely
+     → caster drag causes eastward drift → at x≈0.99 the east corner contacts
+     the east wall at 45° of rotation → physical stall at 45°.
+  The BRAKING state eliminates both problems by killing inertia before committing.
 
-Waypoints (world frame = odom frame, metres):
-  R1 (0.700, 0.750)  R2 (0.700, 2.950)  G (0.000, 2.950)
-
-Topics consumed:  /odom  (nav_msgs/Odometry)
-Topics published: /cmd_vel (geometry_msgs/Twist), /w102/status (std_msgs/String)
+Topics consumed:
+  /odom  (nav_msgs/Odometry)
+Topics published:
+  /cmd_vel  (geometry_msgs/Twist)
+  /w102/status (std_msgs/String)
 """
 
 import math
-import time
-from enum import IntEnum
-
 import rclpy
 import rclpy.parameter
 from rclpy.node import Node
@@ -58,71 +48,56 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from std_msgs.msg import String
 
+# ---------------------------------------------------------------------------
+FT = 0.3048
 
-# ── Waypoints ────────────────────────────────────────────────────────────────
 WAYPOINTS = [
-    (0.700,  0.750),   # R1 — east corridor
-    (0.700,  2.950),   # R2 — north of chair
-    (0.000,  2.950),   # G  — near John
+    (0.75,      0.0),
+    (0.75,      6 * FT),
+    (0   * FT, 10 * FT),
 ]
 WAYPOINT_LABELS = ['R1', 'R2', 'G (John)']
 
-# ── Room wall inner-face coordinates (metres) ────────────────────────────────
-WALL_S =  0.000   # south  (wall centre y=-0.06, thickness 0.12)
-WALL_N =  3.658   # north
-WALL_W = -1.524   # west
-WALL_E =  1.524   # east
-
-
-class State(IntEnum):
-    NAVIGATE        = 0
-    RECOVER_REVERSE = 1
-    RECOVER_ROTATE  = 2
+# Controller states
+_ALIGNING = 'ALIGNING'
+_BRAKING  = 'BRAKING'
+_DRIVING  = 'DRIVING'
 
 
 class W102GazeboNav(Node):
 
-    # ── Speed limits ──────────────────────────────────────────────────────────
-    MAX_LIN = 0.12   # m/s   maximum forward speed
-    MAX_ANG = 1.2    # rad/s maximum angular speed
+    # ---- Gains -----------------------------------------------------------
+    KP_ANG  = 0.8
+    KP_LIN  = 0.6
+    MAX_LIN = 0.12   # m/s
+    MAX_ANG = 0.6    # rad/s  (kept low to reduce angular momentum)
 
-    # ── Proportional heading gain ─────────────────────────────────────────────
-    # wz_des = clamp(KP_ANG * heading_error, ±MAX_ANG)
-    KP_ANG  = 1.5    # rad/s per rad — ref: base_kp_wz = 1.0 (scaled for slower robot)
+    # ---- Arrival ---------------------------------------------------------
+    ARRIVE_DIST = 0.15   # m
 
-    # ── Coordinated vx-wz coupling  [from base_control_loop lines 678-680] ───
-    # yaw_scale = clip(cos(K_YAW_VX * heading_err), 0, 1)
-    # vx_des    = MAX_LIN * yaw_scale * dist_scale
-    K_YAW_VX = 0.9   # coupling strength — directly from reference (k_yaw_vx = 0.9)
+    # ---- Alignment thresholds -------------------------------------------
+    # COARSE_THRESH:   stop spinning and brake when within this of target.
+    # REALIGN_THRESH:  while DRIVING, re-enter ALIGNING if error exceeds this.
+    #                  Must be >= COARSE_THRESH so DRIVING is never instantly
+    #                  followed by ALIGNING on the same residual error.
+    # NOTE: there is NO separate FINE_THRESH.  After braking the robot goes
+    #       directly to DRIVING; the corrective angular.z in DRIVING handles
+    #       the residual error up to REALIGN_THRESH.  A FINE_THRESH that is
+    #       tighter than COARSE_THRESH is physically impossible to satisfy
+    #       (robot cannot rotate during zero-velocity braking), creating the
+    #       ALIGNING ↔ BRAKING trap seen in the debug logs.
+    COARSE_THRESH        = 0.20   # rad (11.5°): ALIGNING → BRAKING
+    REALIGN_THRESH       = 0.45   # rad (25.8 deg): BRAKING->DRIVING gate; DRIVING->ALIGNING trigger
+    ALIGN_TIMEOUT_TICKS  = 100    # ticks (5 s at 20 Hz): 90-deg turn needs ~60 ideal; +67% physics margin
 
-    # ── IIR low-pass filter on vx  [from base_control_loop alpha = 0.35] ─────
-    ALPHA = 0.35     # blend factor — directly from reference (alpha = 0.35)
+    # ---- Braking --------------------------------------------------------
+    BRAKE_TICKS = 15   # zero-vel ticks (0.75 s at 20 Hz)
 
-    # ── Slew-rate limits  [from cmd_safe_vel ax_max / awz_max] ───────────────
-    AX_MAX  = 0.30   # m/s²    — ref: ax_max = 0.4 (reduced for tighter clearances)
-    AWZ_MAX = 2.00   # rad/s²  — ref: awz_max = 3.0
-
-    # ── Distance-based slowdown ───────────────────────────────────────────────
-    SLOW_RADIUS = 0.40   # m — start ramping down vx when closer than this
-
-    # ── Arrival tolerance ─────────────────────────────────────────────────────
-    ARRIVE_DIST = 0.12   # m
-
-    # ── Wall proximity vx suppression  [inspired by _compute_avoidance] ──────
-    WALL_DANGER = 0.35   # m — linear scale-down begins inside this clearance
-
-    # ── Stuck detection ───────────────────────────────────────────────────────
-    STUCK_DIST    = 0.04   # m   — minimum progress per STUCK_TIMEOUT window
-    STUCK_TIMEOUT = 3.0    # s   — seconds without progress before recovery
-
-    # ── Recovery ──────────────────────────────────────────────────────────────
-    RECOVERY_REVERSE_SPD  = 0.08   # m/s
-    RECOVERY_REVERSE_TIME = 1.2    # s
-    RECOVERY_TURN_SPD     = 0.8    # rad/s
-    RECOVERY_TURN_TIME    = 1.8    # s
-
-    # ── Timer period ──────────────────────────────────────────────────────────
-    DT = 0.05   # s  (20 Hz)
+    # ---- Post-arrival settle / stuck recovery ---------------------------
+    SETTLE_TICKS  = 20
+    STUCK_TICKS   = 80
+    STUCK_DIST    = 0.03
+    RECOVER_TICKS = 12
 
     def __init__(self):
         super().__init__('w102_gazebo_nav',
@@ -137,248 +112,240 @@ class W102GazeboNav(Node):
         self.odom_sub   = self.create_subscription(
             Odometry, '/odom', self._odom_cb, 10)
 
-        # Pose
+        # Odometry
         self.x   = 0.0
-        self.y   = 0.750
-        self.yaw = math.pi / 2
+        self.y   = 0.0
+        self.yaw = 0.0
         self.odom_received = False
 
         # Mission
         self.wp_idx       = 0
         self.mission_done = False
-        self.state        = State.NAVIGATE
 
-        # ── Filter / slew state (initialised to zero) ─────────────────────────
-        # IIR filter state for vx  [ref: _base_vx_filt]
-        self._vx_filt = 0.0
-        # Slew-rate output state (what was actually sent last cycle)
-        self._out_vx  = 0.0   # [ref: out_vx in cmd_safe_vel]
-        self._out_wz  = 0.0   # [ref: out_wz in cmd_safe_vel]
+        # Nav state machine
+        self._nav_state       = _ALIGNING
+        self._brake_cnt       = 0
+        self._align_tick_cnt  = 0   # ticks spent in current ALIGNING phase (timeout guard)
 
-        # Stuck detection
-        self.best_dist          = float('inf')
-        self.last_progress_time = self.get_clock().now()
+        # Post-arrival settle
+        self._settle_cnt = 0
 
-        # Recovery timing
-        self.recovery_start = None
+        # Stuck detection (DRIVING only)
+        self._stuck_cnt  = 0
+        self._ref_x      = 0.0
+        self._ref_y      = 0.0
+        self._recover_cnt = 0
 
-        self.timer = self.create_timer(self.DT, self._control_loop)
+        # Debug logging throttle
+        self._dbg_cnt = 0
+
+        self.timer = self.create_timer(0.05, self._control_loop)
+        self.get_logger().info('W102 Nav started — waiting for /odom …')
         self.get_logger().info(
-            'W102 nav (coupled P + slew + IIR) started — awaiting /odom …')
+            '[NAV_CFG] expected spawn=(0.000,0.000) yaw=0.0deg   '
+            f'waypoints={WAYPOINTS}'
+        )
 
-    # ── Odometry callback ────────────────────────────────────────────────────
+    # ------------------------------------------------------------------
     def _odom_cb(self, msg: Odometry):
         self.x = msg.pose.pose.position.x
         self.y = msg.pose.pose.position.y
         q = msg.pose.pose.orientation
-        siny = 2.0 * (q.w * q.z + q.x * q.y)
-        cosy = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
-        self.yaw = math.atan2(siny, cosy)
+        siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        self.yaw = math.atan2(siny_cosp, cosy_cosp)
         if not self.odom_received:
             self.odom_received = True
+            self._ref_x = self.x
+            self._ref_y = self.y
             self.get_logger().info(
-                f'/odom ready — robot at ({self.x:.3f}, {self.y:.3f}) '
-                f'yaw={math.degrees(self.yaw):.1f}°')
+                f'[WAYPOINT_CFG] active waypoints={WAYPOINTS}'
+            )
+            self.get_logger().info(
+                f'[ODOM_INIT] first odom: pos=({self.x:.3f},{self.y:.3f}) '
+                f'yaw={math.degrees(self.yaw):.1f}°'
+            )
 
-    # ── Main control loop (20 Hz) ────────────────────────────────────────────
+    # ------------------------------------------------------------------
+    def _set_state(self, new_state: str, reason: str = ''):
+        if self._nav_state != new_state:
+            self.get_logger().info(
+                f'  [{self._nav_state}→{new_state}] '
+                f'x={self.x:.3f} y={self.y:.3f} '
+                f'yaw={math.degrees(self.yaw):.1f}° '
+                f'wp{self.wp_idx}  {reason}'
+            )
+            self._nav_state = new_state
+            self._align_tick_cnt = 0
+            self._dbg_cnt = 0
+
+    # ------------------------------------------------------------------
     def _control_loop(self):
         if self.mission_done or not self.odom_received:
             return
 
+        # ---- 1. Post-arrival settle ------------------------------------
+        if self._settle_cnt > 0:
+            self._settle_cnt -= 1
+            self._stop()
+            return
+
+        # ---- 2. Stuck recovery: reverse briefly -----------------------
+        if self._recover_cnt > 0:
+            self._recover_cnt -= 1
+            cmd = Twist()
+            cmd.linear.x = -0.06
+            self.cmd_pub.publish(cmd)
+            if self._recover_cnt == 0:
+                self.get_logger().info('[RECOVERY] complete -- re-aligning')
+                self._set_state(_ALIGNING, 'post-recovery')
+                self._stuck_cnt = 0
+                self._ref_x = self.x
+                self._ref_y = self.y
+            return
+
+        # ---- 3. Mission complete ---------------------------------------
         if self.wp_idx >= len(WAYPOINTS):
             self._stop()
             self.mission_done = True
-            self.get_logger().info('✓ W102 reached John!  Mission complete.')
-            self._publish_status('Mission complete — W102 reached John.')
+            self.get_logger().info('✓ Mission complete — W102 reached John.')
+            self._publish_status('Mission complete.')
             return
 
         tx, ty = WAYPOINTS[self.wp_idx]
+        dx = tx - self.x
+        dy = ty - self.y
+        dist = math.hypot(dx, dy)
 
-        # ── Recovery phase 1: reverse ─────────────────────────────────────
-        if self.state == State.RECOVER_REVERSE:
-            if self._elapsed(self.recovery_start) < self.RECOVERY_REVERSE_TIME:
-                self._send(v=-self.RECOVERY_REVERSE_SPD, w=0.0)
-                return
-            self.state          = State.RECOVER_ROTATE
-            self.recovery_start = self.get_clock().now()
-            self.get_logger().info('Recovery phase 2: rotate to disengage …')
-            self._publish_status('Recovery: rotating …')
-
-        # ── Recovery phase 2: rotate CCW ──────────────────────────────────
-        if self.state == State.RECOVER_ROTATE:
-            if self._elapsed(self.recovery_start) < self.RECOVERY_TURN_TIME:
-                self._send(v=0.0, w=self.RECOVERY_TURN_SPD)
-                return
-            self.state              = State.NAVIGATE
-            self.best_dist          = float('inf')
-            self.last_progress_time = self.get_clock().now()
-            self._vx_filt = 0.0
-            self._out_vx  = 0.0
-            self._out_wz  = 0.0
-            self.get_logger().info('Recovery complete — resuming navigation.')
-            self._publish_status(f'Resuming → {WAYPOINT_LABELS[self.wp_idx]}')
-
-        # ── Normal navigation ─────────────────────────────────────────────
-        dist = math.hypot(tx - self.x, ty - self.y)
-
-        # Arrival
+        # ---- 4. Waypoint arrival ---------------------------------------
         if dist < self.ARRIVE_DIST:
-            lbl = WAYPOINT_LABELS[self.wp_idx]
+            label = WAYPOINT_LABELS[self.wp_idx]
             self.get_logger().info(
-                f'  ✓ {self.wp_idx + 1}/{len(WAYPOINTS)} reached: {lbl}')
-            self._publish_status(f'W102 reached {lbl}')
+                f'[WAYPOINT] wp{self.wp_idx+1} {label} reached '
+                f'pos=({self.x:.3f},{self.y:.3f}) yaw={math.degrees(self.yaw):.1f}deg'
+            )
+            self._publish_status(f'W102 reached {label}')
             self._stop()
-            self.wp_idx            += 1
-            self.best_dist          = float('inf')
-            self.last_progress_time = self.get_clock().now()
-            self._vx_filt = 0.0
-            self._out_vx  = 0.0
-            self._out_wz  = 0.0
+            self.wp_idx      += 1
+            self._set_state(_ALIGNING, 'new waypoint')
+            self._settle_cnt  = self.SETTLE_TICKS
+            self._stuck_cnt   = 0
+            self._ref_x       = self.x
+            self._ref_y       = self.y
             return
 
-        # Stuck detection
-        if dist < self.best_dist - self.STUCK_DIST:
-            self.best_dist          = dist
-            self.last_progress_time = self.get_clock().now()
+        target_yaw = math.atan2(dy, dx)
+        angle_err  = self._wrap(target_yaw - self.yaw)
 
-        if self._elapsed(self.last_progress_time) > self.STUCK_TIMEOUT:
-            self.get_logger().warn(
-                f'Stuck at ({self.x:.2f}, {self.y:.2f})! '
-                f'No progress for {self.STUCK_TIMEOUT:.1f} s.')
-            self._publish_status('Stuck — recovering')
-            self.state          = State.RECOVER_REVERSE
-            self.recovery_start = self.get_clock().now()
-            self._stop()
-            return
+        # ---- 5. Debug logging (every 20 ticks = 1 sec) ----------------
+        self._dbg_cnt += 1
+        if self._dbg_cnt % 10 == 0:
+            self.get_logger().info(
+                f'  [DBG/{self._nav_state}] wp{self.wp_idx} '
+                f'pos=({self.x:.3f},{self.y:.3f}) '
+                f'yaw={math.degrees(self.yaw):.1f}° '
+                f'tgt={math.degrees(target_yaw):.1f}° '
+                f'err={math.degrees(angle_err):.1f}° '
+                f'dist={dist:.3f}'
+            )
 
-        # Compute and publish velocity command
-        out_vx, out_wz = self._compute_command(tx, ty, dist)
-        self._send(out_vx, out_wz)
-
-    # ── Reference-inspired velocity computation ───────────────────────────────
-    def _compute_command(self, tx: float, ty: float, dist: float):
-        """
-        Proportional heading controller with three reference-derived layers.
-
-        Step 1 — Proportional angular control
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        wz_des = clamp(KP_ANG * heading_err, ±MAX_ANG)
-        Directly proportional to the heading error, same structure as
-        base_kp_wz in gimbal_tracking_controller.base_control_loop.
-
-        Step 2 — Coordinated vx-wz coupling  [base_control_loop lines 678-680]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        yaw_scale = clip(cos(K_YAW_VX * heading_err), 0, 1)
-        vx_des    = MAX_LIN * yaw_scale * dist_scale
-
-        cos(K_YAW_VX * err) gives a smooth, continuous coupling:
-          · err = 0.00 rad → yaw_scale = 1.00 → full speed ahead
-          · err = 0.87 rad → yaw_scale = 0.50 → half speed while turning
-          · err = π/2  rad → yaw_scale ≈ 0   → essentially stopped
-        The robot never hard-stops to rotate; it always drives forward
-        proportionally while correcting its heading, matching the reference's
-        "avoid stop-go turning" design comment.
-
-        Step 3 — Wall proximity reduction  [inspired by _compute_avoidance]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        If the robot centre is within WALL_DANGER of any wall face, vx_des is
-        linearly scaled toward zero.  This enters the IIR and slew pipeline so
-        the deceleration is gradual, not an abrupt cutoff.
-
-        Step 4 — IIR low-pass filter on vx  [base_control_loop alpha = 0.35]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        vx_filt = (1 - ALPHA) * vx_filt + ALPHA * vx_des
-        Smooths noise-driven jumps in desired forward speed.
-
-        Step 5 — Slew-rate limiter on vx and wz  [cmd_safe_vel ax_max/awz_max]
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        dv   = clamp(target - out_prev, ±a_max*dt)
-        out += dv
-        The actual published command ramps toward the filtered target at a
-        bounded acceleration.  Prevents the physics engine receiving abrupt
-        velocity steps, which previously pushed the robot into walls.
-        """
-
-        # ── Step 1: proportional heading control ──────────────────────────
-        angle_to_goal = math.atan2(ty - self.y, tx - self.x)
-        heading_err   = self._wrap(angle_to_goal - self.yaw)
-
-        wz_des = self._clamp(self.KP_ANG * heading_err, -self.MAX_ANG, self.MAX_ANG)
-
-        # ── Step 2: coordinated coupling  [ref: base_control_loop L678-680] ─
-        yaw_scale  = max(0.0, math.cos(self.K_YAW_VX * heading_err))
-        dist_scale = min(1.0, dist / self.SLOW_RADIUS)
-        vx_des     = self.MAX_LIN * yaw_scale * dist_scale
-
-        # ── Step 3: wall proximity vx reduction  [ref: _compute_avoidance] ──
-        min_clear = min(
-            self.x   - WALL_W,   # west wall
-            WALL_E   - self.x,   # east wall
-            self.y   - WALL_S,   # south wall
-            WALL_N   - self.y,   # north wall
-        )
-        if min_clear < self.WALL_DANGER:
-            # linear ramp: full speed at WALL_DANGER, zero at the face
-            vx_des *= max(0.0, min_clear / self.WALL_DANGER)
-
-        # ── Step 4: IIR low-pass filter on vx  [ref: alpha = 0.35] ──────────
-        self._vx_filt = (1.0 - self.ALPHA) * self._vx_filt + self.ALPHA * vx_des
-
-        # ── Step 5: slew-rate limiter  [ref: cmd_safe_vel ax_max / awz_max] ──
-        # vx ramp
-        max_dvx   = self.AX_MAX  * self.DT
-        dvx       = self._clamp(self._vx_filt - self._out_vx, -max_dvx, max_dvx)
-        self._out_vx += dvx
-
-        # wz ramp (angular acceleration limit, ref: _slew_wz + awz_max)
-        max_dwz   = self.AWZ_MAX * self.DT
-        dwz       = self._clamp(wz_des - self._out_wz, -max_dwz, max_dwz)
-        self._out_wz += dwz
-
-        # Final safety clamp
-        self._out_vx = self._clamp(self._out_vx, 0.0,        self.MAX_LIN)
-        self._out_wz = self._clamp(self._out_wz, -self.MAX_ANG, self.MAX_ANG)
-
-        return self._out_vx, self._out_wz
-
-    # ── Helpers ───────────────────────────────────────────────────────────────
-    def _send(self, v: float, w: float):
+        # ---- 6. State machine ------------------------------------------
         cmd = Twist()
-        cmd.linear.x  = float(v)
-        cmd.angular.z = float(w)
+
+        if self._nav_state == _ALIGNING:
+            self._align_tick_cnt += 1
+
+            if abs(angle_err) < self.COARSE_THRESH:
+                # Close enough — stop spinning so inertia can die
+                self._set_state(_BRAKING,
+                    f'err={math.degrees(angle_err):.1f}° < COARSE={math.degrees(self.COARSE_THRESH):.1f}°')
+                self._brake_cnt = self.BRAKE_TICKS
+                # fall through to BRAKING this tick (zero cmd)
+
+            elif self._align_tick_cnt >= self.ALIGN_TIMEOUT_TICKS:
+                # Spinning too long without reaching COARSE_THRESH.
+                # Likely stalled against wall or persistent oscillation.
+                # Force a brake to let physics settle, then re-evaluate.
+                self._set_state(_BRAKING,
+                    f'timeout after {self._align_tick_cnt} ticks '
+                    f'err={math.degrees(angle_err):.1f}°')
+                self._brake_cnt = self.BRAKE_TICKS
+                # zero cmd this tick
+
+            else:
+                cmd.angular.z = float(
+                    max(-self.MAX_ANG,
+                        min(self.MAX_ANG, self.KP_ANG * angle_err)))
+
+        if self._nav_state == _BRAKING:
+            # Zero velocity — let inertia die.
+            # After braking, go directly to DRIVING unless the error is so
+            # large it exceeds REALIGN_THRESH (something went wrong during brake).
+            # There is no separate FINE_THRESH: braking cannot reduce the error
+            # (robot is stationary), so requiring a tighter threshold than
+            # COARSE_THRESH would trap the robot in ALIGNING ↔ BRAKING forever.
+            self._brake_cnt -= 1
+            if self._brake_cnt <= 0:
+                if abs(angle_err) <= self.REALIGN_THRESH:
+                    self._set_state(_DRIVING,
+                        f'brake done  err={math.degrees(angle_err):.1f}° '
+                        f'<= REALIGN={math.degrees(self.REALIGN_THRESH):.1f}°')
+                    self._stuck_cnt = 0
+                    self._ref_x = self.x
+                    self._ref_y = self.y
+                else:
+                    self._set_state(_ALIGNING,
+                        f'brake done  err={math.degrees(angle_err):.1f}° '
+                        f'> REALIGN={math.degrees(self.REALIGN_THRESH):.1f}° — re-rotate')
+            # cmd stays zero
+
+        elif self._nav_state == _DRIVING:
+            if abs(angle_err) > self.REALIGN_THRESH:
+                self._set_state(_ALIGNING,
+                    f'err={math.degrees(angle_err):.1f}° > {math.degrees(self.REALIGN_THRESH):.0f}°')
+                cmd.angular.z = float(
+                    max(-self.MAX_ANG,
+                        min(self.MAX_ANG, self.KP_ANG * angle_err)))
+            else:
+                cmd.linear.x  = float(min(self.MAX_LIN, self.KP_LIN * dist))
+                cmd.angular.z = float(
+                    max(-self.MAX_ANG * 0.5,
+                        min(self.MAX_ANG * 0.5, self.KP_ANG * angle_err)))
+
+                # ---- Stuck detection (DRIVING only) --------------------
+                moved = math.hypot(self.x - self._ref_x, self.y - self._ref_y)
+                if moved >= self.STUCK_DIST:
+                    self._stuck_cnt = 0
+                    self._ref_x = self.x
+                    self._ref_y = self.y
+                else:
+                    self._stuck_cnt += 1
+                    if self._stuck_cnt >= self.STUCK_TICKS:
+                        self.get_logger().warn(
+                            f'[STUCK] pos=({self.x:.3f},{self.y:.3f}) yaw={math.degrees(self.yaw):.1f}deg -- reversing')
+                        self._recover_cnt = self.RECOVER_TICKS
+                        self._stuck_cnt   = 0
+                        return
+
         self.cmd_pub.publish(cmd)
 
+    # ------------------------------------------------------------------
     def _stop(self):
-        self._send(0.0, 0.0)
-        self._out_vx  = 0.0
-        self._out_wz  = 0.0
-        self._vx_filt = 0.0
+        self.cmd_pub.publish(Twist())
 
     def _publish_status(self, text: str):
         msg = String()
         msg.data = text
         self.status_pub.publish(msg)
 
-    def _elapsed(self, t0) -> float:
-        """Seconds since rclpy.Time t0."""
-        return (self.get_clock().now() - t0).nanoseconds * 1e-9
-
-    @staticmethod
-    def _clamp(x: float, lo: float, hi: float) -> float:
-        """clamp() helper — same signature as reference cmd_safe_vel.clamp()."""
-        return max(lo, min(hi, x))
-
     @staticmethod
     def _wrap(angle: float) -> float:
-        """Wrap angle to (−π, π] — same as reference _wrap_to_pi()."""
-        while angle >  math.pi:
-            angle -= 2.0 * math.pi
-        while angle < -math.pi:
-            angle += 2.0 * math.pi
+        while angle >  math.pi: angle -= 2 * math.pi
+        while angle < -math.pi: angle += 2 * math.pi
         return angle
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
 
 def main(args=None):
     rclpy.init(args=args)

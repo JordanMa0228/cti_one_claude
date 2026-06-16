@@ -59,10 +59,7 @@ def generate_launch_description():
 
     rviz_on = LaunchConfiguration('rviz')
 
-    # ── 1. Gazebo Sim — starts PAUSED so user can orient camera then press Play ─
-    # Remove -r so simulation is paused on open.  Press the ▶ Play button in
-    # the Gazebo window to start the physics.  The nav node waits for /odom
-    # (only published once running) so the robot will not move until Play.
+    # ── 1. Gazebo Sim — starts running immediately (-r flag) ─────────────────
     gz_server = ExecuteProcess(
         cmd=['gz', 'sim', '-r', world_file],
         output='screen',
@@ -86,6 +83,8 @@ def generate_launch_description():
     )
 
     # ── 3. ROS ↔ GZ bridge (4 s delay — let Gazebo finish loading) ──────────
+    # Passed as positional arguments because ros_gz_bridge 2.1.x does not
+    # reliably load 'config_file' as a file path via ROS parameters.
     bridge = TimerAction(
         period=4.0,
         actions=[
@@ -94,7 +93,13 @@ def generate_launch_description():
                 executable='parameter_bridge',
                 name='ros_gz_bridge',
                 output='screen',
-                parameters=[{'config_file': bridge_cfg}],
+                arguments=[
+                    '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
+                    '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
+                    '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+                    '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
+                    '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
+                ],
                 additional_env=GZ_ENV,
             )
         ],

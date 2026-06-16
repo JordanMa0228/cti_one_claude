@@ -1,18 +1,19 @@
 <?xml version="1.0" ?>
 <!--
   Living room world for W102 path-planning simulation.
-  Room: 10 ft × 12 ft  →  3.048 m × 3.658 m
+  Room: 10 ft wide × ~14 ft deep  →  3.048 m × 4.308 m (Y extended south by 0.65 m)
+  South wall moved to y_inner = -0.65 m so robot half-diagonal (0.532 m) fits at S(0,0).
   Coordinate system: X = east, Y = north, Z = up
-  Robot start: (0, 0.750) m  |  Chair: (0, 1.219) m  |  John: (0, 3.048) m
+  Robot start: (0, 0) m, facing +X (yaw = 0)  |  Chair: (0, 1.219) m  |  John: (0, 3.048) m
 -->
 <sdf version="1.9">
   <world name="living_room">
 
-    <!-- ===== GUI camera — top-down view centred on room, matching RViz layout ===== -->
+    <!-- ===== GUI camera — top-down view centred on the room, matching RViz ===== -->
     <!--
-      Camera directly above room centre (0, 1.829) at z=8.
-      Pitch π/2 = looking straight down. Yaw 0 = north (+Y) at top of screen.
-      Matches RViz default top-down orientation: +X right, +Y up.
+      Camera directly above room centre (0, 1.829, 9).
+      Pitch = pi/2 (1.5708 rad) → looks straight down.
+      Yaw = 0 → world +Y (north) points upward in the view, matching RViz default.
     -->
     <gui fullscreen="0">
       <plugin filename="MinimalScene" name="3D View">
@@ -25,8 +26,8 @@
         <scene>scene</scene>
         <ambient_light>0.5 0.5 0.5</ambient_light>
         <background_color>0.55 0.73 0.87</background_color>
-        <!-- Top-down, centred on room midpoint (x=0, y=1.829), height 8 m -->
-        <camera_pose>0 1.829 8 0 1.5708 0</camera_pose>
+        <!-- Top-down, centred on enlarged room (x=0, y=1.504 = mid of [-0.65,3.658]), 10 m height -->
+        <camera_pose>0 1.504 12 0 1.5708 1.5708</camera_pose>
         <camera_clip><near>0.1</near><far>100</far></camera_clip>
       </plugin>
 
@@ -109,7 +110,7 @@
     </light>
 
     <light type="point" name="room_lamp">
-      <pose>0 1.829 2.2 0 0 0</pose>
+      <pose>0 1.504 2.2 0 0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>
       <specular>0.1 0.1 0.1 1</specular>
       <attenuation>
@@ -122,13 +123,14 @@
     </light>
 
     <!-- ===== Floor ===== -->
+    <!-- y centre = (-0.65+3.658)/2 = 1.504; y size = 3.658+0.65 = 4.308 -->
     <model name="floor">
       <static>true</static>
-      <pose>0 1.829 0 0 0 0</pose>
+      <pose>0 1.504 0 0 0 0</pose>
       <link name="link">
         <collision name="col">
           <geometry>
-            <box><size>3.048 3.658 0.05</size></box>
+            <box><size>3.048 4.308 0.05</size></box>
           </geometry>
           <surface>
             <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
@@ -137,7 +139,7 @@
         <visual name="vis">
           <pose>0 0 -0.025 0 0 0</pose>
           <geometry>
-            <box><size>3.048 3.658 0.05</size></box>
+            <box><size>3.048 4.308 0.05</size></box>
           </geometry>
           <material>
             <ambient>0.76 0.60 0.42 1</ambient>
@@ -149,10 +151,10 @@
     </model>
 
     <!-- ===== Walls (thickness 0.12 m, height 2.5 m) ===== -->
-    <!-- South wall  y = -0.06 -->
+    <!-- South wall  inner face y = -0.65; centre y = -0.71 (moved south for S(0,0) rotation sweep) -->
     <model name="wall_south">
       <static>true</static>
-      <pose>0 -0.06 1.25 0 0 0</pose>
+      <pose>0 -0.71 1.25 0 0 0</pose>
       <link name="link">
         <collision name="col"><geometry><box><size>3.288 0.12 2.5</size></box></geometry></collision>
         <visual name="vis">
@@ -175,27 +177,27 @@
       </link>
     </model>
 
-    <!-- West wall  x = -1.584 -->
+    <!-- West wall  x = -1.584; y centre = (-0.71+3.718)/2 = 1.504; y size = 4.428 -->
     <model name="wall_west">
       <static>true</static>
-      <pose>-1.584 1.829 1.25 0 0 0</pose>
+      <pose>-1.584 1.504 1.25 0 0 0</pose>
       <link name="link">
-        <collision name="col"><geometry><box><size>0.12 3.898 2.5</size></box></geometry></collision>
+        <collision name="col"><geometry><box><size>0.12 4.428 2.5</size></box></geometry></collision>
         <visual name="vis">
-          <geometry><box><size>0.12 3.898 2.5</size></box></geometry>
+          <geometry><box><size>0.12 4.428 2.5</size></box></geometry>
           <material><ambient>0.88 0.86 0.80 1</ambient><diffuse>0.88 0.86 0.80 1</diffuse></material>
         </visual>
       </link>
     </model>
 
-    <!-- East wall  x = 1.584 -->
+    <!-- East wall  x = 1.584; y centre = 1.504; y size = 4.428 -->
     <model name="wall_east">
       <static>true</static>
-      <pose>1.584 1.829 1.25 0 0 0</pose>
+      <pose>1.584 1.504 1.25 0 0 0</pose>
       <link name="link">
-        <collision name="col"><geometry><box><size>0.12 3.898 2.5</size></box></geometry></collision>
+        <collision name="col"><geometry><box><size>0.12 4.428 2.5</size></box></geometry></collision>
         <visual name="vis">
-          <geometry><box><size>0.12 3.898 2.5</size></box></geometry>
+          <geometry><box><size>0.12 4.428 2.5</size></box></geometry>
           <material><ambient>0.88 0.86 0.80 1</ambient><diffuse>0.88 0.86 0.80 1</diffuse></material>
         </visual>
       </link>
@@ -284,7 +286,7 @@
     <!-- ===== Graph waypoint markers (visual only) ===== -->
     <model name="wp_R1">
       <static>true</static>
-      <pose>0.700 0.750 0.02 0 0 0</pose>
+      <pose>0.75 0 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>
@@ -295,7 +297,7 @@
 
     <model name="wp_R2">
       <static>true</static>
-      <pose>0.700 2.950 0.02 0 0 0</pose>
+      <pose>0.75 1.8288 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>
@@ -306,7 +308,7 @@
 
     <model name="wp_L1">
       <static>true</static>
-      <pose>-0.700 0.750 0.02 0 0 0</pose>
+      <pose>-0.9144 0 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>
@@ -317,7 +319,7 @@
 
     <model name="wp_L2">
       <static>true</static>
-      <pose>-0.700 2.950 0.02 0 0 0</pose>
+      <pose>-0.9144 1.8288 0.02 0 0 0</pose>
       <link name="link">
         <visual name="vis">
           <geometry><cylinder><radius>0.06</radius><length>0.04</length></cylinder></geometry>
@@ -329,14 +331,12 @@
     <!-- ===== W102 Robot ===== -->
     <!--
       Base footprint: 0.686 m × 0.813 m (27 in × 32 in)
-      Drive wheels:   radius 0.10 m, separation 0.54 m
-      Caster wheel:   radius 0.05 m at front
-      Initial pose:   (0, 0.750) m, facing +Y (yaw = π/2)
-      Rotation sweep radius = sqrt((0.686/2)²+(0.813/2)²) = 0.532 m
-      South wall inner face at y=0.000 m → minimum safe y = 0.532+0.15 = 0.682 m
+      Drive wheels:   radius 0.10 m, separation 0.54 m (left y=+0.27, right y=-0.27)
+      Caster wheels:  radius 0.05 m (front x=+0.36, rear x=-0.36)
+      Initial pose:   (0, 0.0) m, facing +X (yaw = 0)
     -->
     <model name="w102">
-      <pose>0 0.750 0.12 0 0 1.5708</pose>
+      <pose>0 0 0.12 0 0 0</pose>
 
       <!-- Base link -->
       <link name="base_link">
@@ -361,21 +361,21 @@
         </visual>
         <!-- Sensor tower -->
         <visual name="tower_vis">
-          <pose>0 0.1 0.18 0 0 0</pose>
+          <pose>0.1 0 0.18 0 0 0</pose>
           <geometry><cylinder><radius>0.06</radius><length>0.16</length></cylinder></geometry>
           <material><ambient>0.8 0.2 0.0 1</ambient><diffuse>0.8 0.2 0.0 1</diffuse></material>
         </visual>
         <!-- Front bumper stripe -->
         <visual name="bumper_vis">
-          <pose>0 0.41 -0.05 0 0 0</pose>
-          <geometry><box><size>0.686 0.02 0.08</size></box></geometry>
+          <pose>0.41 0 -0.05 0 0 0</pose>
+          <geometry><box><size>0.02 0.686 0.08</size></box></geometry>
           <material><ambient>1.0 0.5 0.0 1</ambient><diffuse>1.0 0.5 0.0 1</diffuse></material>
         </visual>
       </link>
 
       <!-- Left drive wheel -->
       <link name="left_wheel">
-        <pose>-0.27 0 -0.02 1.5708 0 0</pose>
+        <pose>0 0.27 -0.02 1.5708 0 0</pose>
         <inertial>
           <mass>1.5</mass>
           <inertia><ixx>0.0045</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.0045</iyy><iyz>0</iyz><izz>0.0075</izz></inertia>
@@ -393,12 +393,12 @@
       <joint name="left_wheel_joint" type="revolute">
         <parent>base_link</parent>
         <child>left_wheel</child>
-        <axis><xyz>1 0 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+        <axis><xyz>0 1 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
       </joint>
 
       <!-- Right drive wheel -->
       <link name="right_wheel">
-        <pose>0.27 0 -0.02 1.5708 0 0</pose>
+        <pose>0 -0.27 -0.02 1.5708 0 0</pose>
         <inertial>
           <mass>1.5</mass>
           <inertia><ixx>0.0045</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.0045</iyy><iyz>0</iyz><izz>0.0075</izz></inertia>
@@ -416,12 +416,12 @@
       <joint name="right_wheel_joint" type="revolute">
         <parent>base_link</parent>
         <child>right_wheel</child>
-        <axis><xyz>1 0 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+        <axis><xyz>0 1 0</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
       </joint>
 
       <!-- Front caster wheel -->
       <link name="caster_wheel">
-        <pose>0 0.36 -0.07 0 0 0</pose>
+        <pose>0.36 0 -0.07 0 0 0</pose>
         <inertial>
           <mass>0.3</mass>
           <inertia><ixx>0.0003</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.0003</iyy><iyz>0</iyz><izz>0.0003</izz></inertia>
@@ -443,7 +443,7 @@
 
       <!-- Rear caster wheel -->
       <link name="caster_rear">
-        <pose>0 -0.36 -0.07 0 0 0</pose>
+        <pose>-0.36 0 -0.07 0 0 0</pose>
         <inertial>
           <mass>0.3</mass>
           <inertia><ixx>0.0003</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.0003</iyy><iyz>0</iyz><izz>0.0003</izz></inertia>
@@ -475,7 +475,7 @@
         <odom_topic>/odom</odom_topic>
         <tf_topic>/tf</tf_topic>
         <frame_id>odom</frame_id>
-        <child_frame_id>base_link</child_frame_id>
+        <child_frame_id>base_footprint</child_frame_id>
       </plugin>
 
       <!-- Joint state publisher -->
